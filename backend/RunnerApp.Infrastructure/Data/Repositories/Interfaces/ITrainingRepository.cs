@@ -4,5 +4,5 @@ namespace RunnerApp.Infrastructure.Data.Repositories.Interfaces;
 
 public interface ITrainingRepository
 {
-    public Task CreateTrainingAsync(Training training);
+    public Task CreateTrainingAsync(Training training, CancellationToken cancellationToken);
 }

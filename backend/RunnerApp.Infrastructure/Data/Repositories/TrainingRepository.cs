@@ -12,9 +12,9 @@ public class TrainingRepository : ITrainingRepository
         _dataContext = dataContext;
     }
 
-    public async Task CreateTrainingAsync(Training training)
+    public async Task CreateTrainingAsync(Training training, CancellationToken cancellationToken)
     {
-        await _dataContext.Trainings.AddAsync(training);
-        await _dataContext.SaveChangesAsync();
+        await _dataContext.Trainings.AddAsync(training, cancellationToken);
+        await _dataContext.SaveChangesAsync(cancellationToken);
     }
 }
