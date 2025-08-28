@@ -13,7 +13,6 @@ public sealed class DataContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new TrainingMapping());
-
         base.OnModelCreating(modelBuilder);
     }
 }

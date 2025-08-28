@@ -25,7 +25,7 @@ public class Training
             throw new ArgumentException("Duration must be greater than zero.");
         Duration = duration;
 
-        Date = date;
+        Date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
         CreatedAt = DateTime.UtcNow;
     }
 

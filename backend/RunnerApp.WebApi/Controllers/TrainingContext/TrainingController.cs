@@ -21,6 +21,14 @@ public class TrainingController : ControllerBase
         [FromBody] CreateTrainingServiceInput input,
         CancellationToken cancellationToken)
     {
-        return Ok();
+        var training = await _trainingService.CreateTrainingServiceAsync(
+            input: CreateTrainingServiceInput.Factory(
+                location: input.Location, 
+                distance: input.Distance, 
+                duration: input.Duration, 
+                date: input.Date),
+            cancellationToken: cancellationToken);
+
+        return StatusCode(201, training);
     }
 }
