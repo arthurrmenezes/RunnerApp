@@ -1,0 +1,21 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build
+bin/
+obj/
+
+# NuGet
+*.nupkg
+packages/
+project.assets.json
+project.nuget.cache
+
+# Copilot
+/CopilotIndices/
+
+# Outros caches
+/filecontentindex
+/v17
