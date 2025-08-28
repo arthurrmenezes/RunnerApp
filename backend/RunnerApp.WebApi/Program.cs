@@ -7,9 +7,12 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        #region Infrascructure Dependencies Configuration
+        #region Infrastructure Dependencies Configuration
 
-        builder.Services.ApplyInfrastructureDependenciesConfiguration();
+        const string connectionString = "Dependencies:Infrastructure:Data:PostgreSQLConnectionString";
+
+        builder.Services.ApplyInfrastructureDependenciesConfiguration(
+            connectionString: builder.Configuration[connectionString]!);
 
         #endregion
 
