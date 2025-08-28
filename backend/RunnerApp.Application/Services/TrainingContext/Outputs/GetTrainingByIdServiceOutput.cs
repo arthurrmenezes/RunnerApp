@@ -2,7 +2,7 @@
 
 namespace RunnerApp.Application.Services.TrainingContext.Outputs;
 
-public readonly struct CreateTrainingServiceOutput
+public readonly struct GetTrainingByIdServiceOutput
 {
     public string Id { get; }
     public LocationType Location { get; }
@@ -11,7 +11,7 @@ public readonly struct CreateTrainingServiceOutput
     public DateTime Date { get; }
     public DateTime CreatedAt { get; }
 
-    private CreateTrainingServiceOutput(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt)
+    private GetTrainingByIdServiceOutput(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt)
     {
         Id = id;
         Location = location;
@@ -21,6 +21,6 @@ public readonly struct CreateTrainingServiceOutput
         CreatedAt = createdAt;
     }
 
-    public static CreateTrainingServiceOutput Factory(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt)
-        => new CreateTrainingServiceOutput(id, location, distance, duration, date, createdAt);
+    public static GetTrainingByIdServiceOutput Factory(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt)
+        => new GetTrainingByIdServiceOutput(id, location, distance, duration, date, createdAt);
 }

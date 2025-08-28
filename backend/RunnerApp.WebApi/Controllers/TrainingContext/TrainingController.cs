@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RunnerApp.Application.Services.TrainingContext.Inputs;
 using RunnerApp.Application.Services.TrainingContext.Interfaces;
+using RunnerApp.Domain.ValueObjects;
 
 namespace RunnerApp.WebApi.Controllers.TrainingContext;
 
@@ -29,6 +30,22 @@ public class TrainingController : ControllerBase
                 date: input.Date),
             cancellationToken: cancellationToken);
 
-        return StatusCode(201, training);
+        return CreatedAtAction(nameof(GetTrainingByIdAsync), new { id = training.Id }, training);
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetTrainingByIdAsync(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(id, out var guid))
+            return BadRequest("The provided ID is not a valid GUID.");
+
+        var training = await _trainingService.GetTrainingByIdServiceAsync(
+            id: IdValueObject.Factory(guid),
+            cancellationToken: cancellationToken);
+
+        return Ok(training);
     }
 }

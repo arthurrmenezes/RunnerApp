@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using RunnerApp.Application;
 using RunnerApp.Infrastructure;
 
@@ -27,6 +28,7 @@ public class Program
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
         builder.Services.AddEndpointsApiExplorer();
