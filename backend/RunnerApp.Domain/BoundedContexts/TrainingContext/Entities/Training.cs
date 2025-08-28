@@ -1,30 +1,30 @@
-﻿using System.ComponentModel.DataAnnotations;
-using RunnerApp.Domain.BoundedContexts.TrainingContext.ENUMs;
+﻿using RunnerApp.Domain.BoundedContexts.TrainingContext.ENUMs;
 using RunnerApp.Domain.ValueObjects;
 
 namespace RunnerApp.Domain.BoundedContexts.TrainingContext.Entities;
 
 public class Training
 {
-    [Key]
-    public IdValueObject Id { get; set; }
-    [Required]
-    public LocationType Location { get; set; }
-    [Required]
-    public double Distance { get; set; }
-    [Required]
-    public TimeSpan Duration { get; set; }
-    [Required]
-    public DateTime Date { get; set; }
-    [Required]
-    public DateTime CreatedAt { get; set; }
+    public IdValueObject Id { get; private set; }
+    public LocationType Location { get; private set; }
+    public double Distance { get; private set; }
+    public TimeSpan Duration { get; private set; }
+    public DateTime Date { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     private Training(LocationType location, double distance, TimeSpan duration, DateTime date)
     {
         Id = IdValueObject.New();
         Location = location;
+
+        if (distance <= 0)
+            throw new ArgumentException("Distance must be greater than zero.");
         Distance = distance;
+
+        if (duration <= TimeSpan.Zero)
+            throw new ArgumentException("Duration must be greater than zero.");
         Duration = duration;
+
         Date = date;
         CreatedAt = DateTime.UtcNow;
     }
