@@ -30,4 +30,10 @@ public class TrainingRepository : ITrainingRepository
     {
         await _dataContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task DeleteTrainingAsync(Training training, CancellationToken cancellationToken)
+    {
+        _dataContext.Trainings.Remove(training);
+        await _dataContext.SaveChangesAsync(cancellationToken);
+    }
 }

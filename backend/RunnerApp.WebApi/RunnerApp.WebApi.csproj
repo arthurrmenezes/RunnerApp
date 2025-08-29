@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RunnerApp.Application\RunnerApp.Application.csproj" />
-    <ProjectReference Include="..\RunnerApp.Domain\RunnerApp.Domain.csproj" />
     <ProjectReference Include="..\RunnerApp.Infrastructure\RunnerApp.Infrastructure.csproj" />
   </ItemGroup>
 

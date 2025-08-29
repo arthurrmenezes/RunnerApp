@@ -18,4 +18,8 @@ public interface ITrainingService
         IdValueObject id,
         UpdateTrainingByIdServiceInput input,
         CancellationToken cancellationToken);
+
+    public Task DeleteTrainingByIdServiceAsync(
+        IdValueObject id,
+        CancellationToken cancellationToken);
 }

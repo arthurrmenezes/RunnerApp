@@ -79,4 +79,14 @@ public class TrainingService : ITrainingService
             date: training.Date,
             createdAt: training.CreatedAt);
     }
+
+    public async Task DeleteTrainingByIdServiceAsync(IdValueObject id, CancellationToken cancellationToken)
+    {
+        var training = await _trainingRepository.GetTrainingByIdAsync(id, cancellationToken);
+
+        if (training is null)
+            throw new KeyNotFoundException($"No training with ID {id} was found.");
+
+        await _trainingRepository.DeleteTrainingAsync(training, cancellationToken);
+    }
 }
