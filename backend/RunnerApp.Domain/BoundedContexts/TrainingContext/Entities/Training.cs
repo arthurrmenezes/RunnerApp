@@ -31,4 +31,17 @@ public class Training
 
     public static Training Factory(LocationType location, double distance, TimeSpan duration, DateTime date)
         => new Training(location, distance, duration, date);
+
+    public void UpdateTrainingDetails(LocationType location, double distance, TimeSpan duration, DateTime date)
+    {
+        if (distance <= 0)
+            throw new ArgumentException("Distance must be greater than zero.");
+        if (duration <= TimeSpan.Zero)
+            throw new ArgumentException("Duration must be greater than zero.");
+
+        Location = location;
+        Distance = distance;
+        Duration = duration;
+        Date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+    }
 }

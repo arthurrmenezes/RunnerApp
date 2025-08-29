@@ -8,4 +8,6 @@ public interface ITrainingRepository
     public Task CreateTrainingAsync(Training training, CancellationToken cancellationToken);
 
     public Task<Training?> GetTrainingByIdAsync(IdValueObject id, CancellationToken cancellationToken);
+
+    public Task UpdateTrainingAsync(Training training, CancellationToken cancellationToken);
 }

@@ -25,4 +25,9 @@ public class TrainingRepository : ITrainingRepository
         var training = await _dataContext.Trainings.FirstOrDefaultAsync(t => t.Id.Equals(id));
         return training;
     }
+
+    public async Task UpdateTrainingAsync(Training training, CancellationToken cancellationToken)
+    {
+        await _dataContext.SaveChangesAsync(cancellationToken);
+    }
 }

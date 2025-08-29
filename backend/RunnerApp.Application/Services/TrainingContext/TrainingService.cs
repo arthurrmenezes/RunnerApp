@@ -52,4 +52,31 @@ public class TrainingService : ITrainingService
             date: training.Date,
             createdAt: training.CreatedAt);
     }
+
+    public async Task<UpdateTrainingByIdServiceOutput> UpdateTrainingByIdServiceAsync(
+        IdValueObject id, 
+        UpdateTrainingByIdServiceInput input, 
+        CancellationToken cancellationToken)
+    {
+        var training = await _trainingRepository.GetTrainingByIdAsync(id, cancellationToken);
+
+        if (training is null)
+            throw new KeyNotFoundException($"No training with ID {id} was found.");
+
+        training.UpdateTrainingDetails(
+            location: input.Location,
+            distance: input.Distance,
+            duration: input.Duration,
+            date: input.Date);
+
+        await _trainingRepository.UpdateTrainingAsync(training, cancellationToken);
+
+        return UpdateTrainingByIdServiceOutput.Factory(
+            id: training.Id.ToString(),
+            location: training.Location,
+            distance: training.Distance,
+            duration: training.Duration,
+            date: training.Date,
+            createdAt: training.CreatedAt);
+    }
 }

@@ -13,4 +13,9 @@ public interface ITrainingService
     public Task<GetTrainingByIdServiceOutput> GetTrainingByIdServiceAsync(
         IdValueObject id,
         CancellationToken cancellationToken);
+
+    public Task<UpdateTrainingByIdServiceOutput> UpdateTrainingByIdServiceAsync(
+        IdValueObject id,
+        UpdateTrainingByIdServiceInput input,
+        CancellationToken cancellationToken);
 }

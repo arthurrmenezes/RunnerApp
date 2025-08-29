@@ -48,4 +48,21 @@ public class TrainingController : ControllerBase
 
         return Ok(training);
     }
+
+    [HttpPut]
+    [Route("update/{id}")]
+    public async Task<IActionResult> UpdateTrainingByIdAsync(
+        string id,
+        [FromBody] UpdateTrainingByIdServiceInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(id, out var guid))
+            return BadRequest("The provided ID is not a valid GUID.");
+
+        var training = await _trainingService.UpdateTrainingByIdServiceAsync(
+            id: IdValueObject.Factory(guid),
+            input: input,
+            cancellationToken: cancellationToken);
+        return Ok(training);
+    }
 }
