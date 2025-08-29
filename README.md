@@ -2,10 +2,8 @@
 
 **API de gerenciamento de treinos de corrida.**
 
----
-
 ## 💻 Tecnologias
-- C# .NET 8
+- C# / .NET 8
 - Entity Framework Core
 - PostgreSQL
 - Clean Architecture
@@ -19,7 +17,7 @@
 # Clonar o repositório
 git clone https://github.com/seuusuario/RunnerApp.git
 
-# Entrar no backend
+# Entrar na pasta backend
 cd RunnerApp/backend
 
 # Restaurar dependências
