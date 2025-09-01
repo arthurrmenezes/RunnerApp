@@ -17,17 +17,12 @@ public class TrainingController : ControllerBase
     }
 
     [HttpPost]
-    [Route("create")]
     public async Task<IActionResult> CreateTrainingAsync(
         [FromBody] CreateTrainingServiceInput input,
         CancellationToken cancellationToken)
     {
         var training = await _trainingService.CreateTrainingServiceAsync(
-            input: CreateTrainingServiceInput.Factory(
-                location: input.Location, 
-                distance: input.Distance, 
-                duration: input.Duration, 
-                date: input.Date),
+            input: input,
             cancellationToken: cancellationToken);
 
         return CreatedAtAction(nameof(GetTrainingByIdAsync), new { id = training.Id }, training);
@@ -40,7 +35,7 @@ public class TrainingController : ControllerBase
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(id, out var guid))
-            return BadRequest("The provided ID is not a valid GUID.");
+            throw new ArgumentException("The provided ID is not a valid GUID.");
 
         var training = await _trainingService.GetTrainingByIdServiceAsync(
             id: IdValueObject.Factory(guid),
@@ -57,12 +52,13 @@ public class TrainingController : ControllerBase
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(id, out var guid))
-            return BadRequest("The provided ID is not a valid GUID.");
+            throw new ArgumentException("The provided ID is not a valid GUID.");
 
         var training = await _trainingService.UpdateTrainingByIdServiceAsync(
             id: IdValueObject.Factory(guid),
             input: input,
             cancellationToken: cancellationToken);
+
         return Ok(training);
     }
 
@@ -73,7 +69,7 @@ public class TrainingController : ControllerBase
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(id, out var guid))
-            return BadRequest("The provided ID is not a valid GUID.");
+            throw new ArgumentException("The provided ID is not a valid GUID.");
 
         await _trainingService.DeleteTrainingByIdServiceAsync(
             id: IdValueObject.Factory(guid),

@@ -26,9 +26,6 @@ public class TrainingService : ITrainingService
             duration: input.Duration,
             date: input.Date);
 
-        if (training is null)
-            throw new InvalidOperationException("Failed to create the training with the provided data. Check if the values are valid.");
-
         await _trainingRepository.CreateTrainingAsync(training, cancellationToken);
 
         return CreateTrainingServiceOutput.Factory(
