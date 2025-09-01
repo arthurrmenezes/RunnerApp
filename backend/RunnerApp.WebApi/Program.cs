@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using RunnerApp.Application;
 using RunnerApp.Infrastructure;
+using RunnerApp.WebApi.Middlewares;
 
 public class Program
 {
@@ -36,10 +37,15 @@ public class Program
 
         var app = builder.Build();
 
+        app.UseMiddleware<ExceptionMiddleware>();
+
         app.UseHttpsRedirection();
 
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
 
         app.MapControllers();
 
