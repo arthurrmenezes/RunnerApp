@@ -13,33 +13,43 @@ public sealed record TrainingMapping : IEntityTypeConfiguration<Training>
 
         builder.HasKey(p => p.Id);
 
+        builder.HasOne(t => t.Account)
+            .WithMany(a => a.Trainings)
+            .HasForeignKey(t => t.AccountId)
+            .IsRequired();
+
         #region Properties Configuration
 
         builder.Property(t => t.Id)
-            .IsRequired(true)
+            .IsRequired()
             .HasConversion(t => t.Id, value => IdValueObject.Factory(value))
             .ValueGeneratedNever();
+
+        builder.Property(t => t.AccountId)
+            .IsRequired()
+            .HasConversion(t => t.Id, value => IdValueObject.Factory(value));
+
         builder.Property(t => t.Location)
             .HasColumnName("location")
-            .IsRequired(true)
+            .IsRequired()
             .HasConversion<string>()
-            .HasMaxLength(50)
-            .ValueGeneratedNever();
+            .HasMaxLength(50);
+
         builder.Property(t => t.Distance)
             .HasColumnName("distance")
-            .IsRequired(true)
-            .ValueGeneratedNever();
+            .IsRequired();
+
         builder.Property(t => t.Duration)
             .HasColumnName("duration")
-            .IsRequired(true)
-            .ValueGeneratedNever();
+            .IsRequired();
+
         builder.Property(t => t.Date)
             .HasColumnName("date")
-            .IsRequired(true)
-            .ValueGeneratedNever();
+            .IsRequired();
+
         builder.Property(t => t.CreatedAt)
             .HasColumnName("created_at")
-            .IsRequired(true);
+            .IsRequired();
 
         #endregion
     }

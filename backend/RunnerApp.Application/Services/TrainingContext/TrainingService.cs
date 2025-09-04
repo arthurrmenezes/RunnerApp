@@ -24,7 +24,8 @@ public class TrainingService : ITrainingService
             location: input.Location,
             distance: input.Distance,
             duration: input.Duration,
-            date: input.Date);
+            date: input.Date,
+            accountId: Guid.NewGuid());
 
         await _trainingRepository.CreateTrainingAsync(training, cancellationToken);
 

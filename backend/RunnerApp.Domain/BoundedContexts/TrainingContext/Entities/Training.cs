@@ -1,4 +1,5 @@
-﻿using RunnerApp.Domain.BoundedContexts.TrainingContext.ENUMs;
+﻿using RunnerApp.Domain.BoundedContexts.AccountContext.Entities;
+using RunnerApp.Domain.BoundedContexts.TrainingContext.ENUMs;
 using RunnerApp.Domain.ValueObjects;
 
 namespace RunnerApp.Domain.BoundedContexts.TrainingContext.Entities;
@@ -12,11 +13,16 @@ public class Training
     public DateTime Date { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
+    public IdValueObject AccountId { get; private set; }
+    public virtual Account Account { get; private set; }
+
     private const double MaxDistanceKm = 300;
     private static readonly TimeSpan MinDuration = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan MaxDuration = TimeSpan.FromHours(24);
 
-    private Training(LocationType location, double distance, TimeSpan duration, DateTime date)
+    private Training() { }
+
+    private Training(LocationType location, double distance, TimeSpan duration, DateTime date, IdValueObject accountId)
     {
         Id = IdValueObject.New();
         ValidateDomain(location, distance, duration, date);
@@ -25,11 +31,12 @@ public class Training
         Distance = distance;
         Duration = duration;
         Date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+        AccountId = accountId;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public static Training Factory(LocationType location, double distance, TimeSpan duration, DateTime date)
-        => new Training(location, distance, duration, date);
+    public static Training Factory(LocationType location, double distance, TimeSpan duration, DateTime date, IdValueObject accountId)
+        => new Training(location, distance, duration, date, accountId);
 
     public void UpdateTrainingDetails(LocationType location, double distance, TimeSpan duration, DateTime date)
     {
