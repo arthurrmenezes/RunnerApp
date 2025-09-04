@@ -26,6 +26,7 @@ public static class DependencyInjection
         #region Repositories Configuration
 
         serviceCollection.AddScoped<ITrainingRepository, TrainingRepository>();
+        serviceCollection.AddScoped<IAccountRepository, AccountRepository>();
 
         #endregion
 
