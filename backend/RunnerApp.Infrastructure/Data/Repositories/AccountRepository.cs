@@ -24,4 +24,9 @@ public class AccountRepository : IAccountRepository
     {
         return await _dataContext.Accounts.AnyAsync(a => a.Email.Equals(email), cancellationToken);
     }
+
+    public async Task<Account?> GetAccountById(IdValueObject id, CancellationToken cancellationToken)
+    {
+        return await _dataContext.Accounts.FirstOrDefaultAsync(a => a.Id.Equals(id), cancellationToken);
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RunnerApp.Application.Services.AccountContext.Inputs;
 using RunnerApp.Application.Services.AccountContext.Interfaces;
+using RunnerApp.Domain.ValueObjects;
 using RunnerApp.WebApi.Controllers.AccountContext.Payloads;
 
 namespace RunnerApp.WebApi.Controllers.AccountContext;
@@ -28,7 +29,21 @@ public class AccountController : ControllerBase
                 email: input.Email),
             cancellationToken: cancellationToken);
 
+        return CreatedAtAction(nameof(GetAccountByIdAsync), new { id = account.Id }, account);
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetAccountByIdAsync(
+        string id, 
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(id, out var guid))
+            throw new ArgumentException("The provided ID is not a valid GUID.");
+
+        var account = await _accountService.GetAccountByIdServiceAsync(
+            id: IdValueObject.Factory(guid), 
+            cancellationToken: cancellationToken);
         return Ok(account);
-        //return CreatedAtAction(nameof(GetAccountByIdAsync), new { id = account.Id }, account);
     }
 }
