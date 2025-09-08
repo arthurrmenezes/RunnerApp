@@ -10,27 +10,39 @@ namespace RunnerApp.Application.Services.TrainingContext;
 public class TrainingService : ITrainingService
 {
     private readonly ITrainingRepository _trainingRepository;
+    private readonly IAccountRepository _accountRepository;
 
-    public TrainingService(ITrainingRepository trainingRepository)
+    public TrainingService(ITrainingRepository trainingRepository, IAccountRepository accountRepository)
     {
         _trainingRepository = trainingRepository;
+        _accountRepository = accountRepository;
     }
 
     public async Task<CreateTrainingServiceOutput> CreateTrainingServiceAsync(
         CreateTrainingServiceInput input, 
         CancellationToken cancellationToken)
     {
+        var account = await _accountRepository.GetAccountById(input.AccountId, cancellationToken);
+        if (account is null)
+            throw new KeyNotFoundException("No account with ID {id} was found.");
+
         var training = Training.Factory(
             location: input.Location,
             distance: input.Distance,
             duration: input.Duration,
             date: input.Date,
-            accountId: Guid.NewGuid());
+            accountId: input.AccountId);
 
         await _trainingRepository.CreateTrainingAsync(training, cancellationToken);
 
         return CreateTrainingServiceOutput.Factory(
             id: training.Id.ToString(),
+            account: new CreateTrainingServiceOutputAccountOutput(
+                id: training.Account.Id.ToString(),
+                firstName: training.Account.FirstName,
+                surname: training.Account.Surname,
+                email: training.Account.Email,
+                createdAt: training.Account.CreatedAt),
             location: training.Location,
             distance: training.Distance,
             duration: training.Duration,
@@ -41,12 +53,21 @@ public class TrainingService : ITrainingService
     public async Task<GetTrainingByIdServiceOutput> GetTrainingByIdServiceAsync(IdValueObject id, CancellationToken cancellationToken)
     {
         var training = await _trainingRepository.GetTrainingByIdAsync(id, cancellationToken);
-
         if (training is null)
             throw new KeyNotFoundException($"No training with ID {id} was found.");
 
+        var account = await _accountRepository.GetAccountById(training.AccountId, cancellationToken);
+        if (account is null)
+            throw new KeyNotFoundException($"No account with ID {training.AccountId} was found.");
+
         return GetTrainingByIdServiceOutput.Factory(
             id: training.Id.ToString(),
+            account: new GetTrainingByIdServiceOutputAccountOutput(
+                id: account.Id.ToString(),
+                firstName: account.FirstName.ToString(),
+                surname: account.Surname.ToString(),
+                email: account.Email.ToString(),
+                createdAt: account.CreatedAt),
             location: training.Location,
             distance: training.Distance,
             duration: training.Duration,

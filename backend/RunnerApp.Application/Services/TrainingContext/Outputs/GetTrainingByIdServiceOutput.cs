@@ -10,8 +10,9 @@ public readonly struct GetTrainingByIdServiceOutput
     public TimeSpan Duration { get; }
     public DateTime Date { get; }
     public DateTime CreatedAt { get; }
+    public GetTrainingByIdServiceOutputAccountOutput Account { get; }
 
-    private GetTrainingByIdServiceOutput(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt)
+    private GetTrainingByIdServiceOutput(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt, GetTrainingByIdServiceOutputAccountOutput account)
     {
         Id = id;
         Location = location;
@@ -19,8 +20,27 @@ public readonly struct GetTrainingByIdServiceOutput
         Duration = duration;
         Date = date;
         CreatedAt = createdAt;
+        Account = account;
     }
 
-    public static GetTrainingByIdServiceOutput Factory(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt)
-        => new GetTrainingByIdServiceOutput(id, location, distance, duration, date, createdAt);
+    public static GetTrainingByIdServiceOutput Factory(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt, GetTrainingByIdServiceOutputAccountOutput account)
+        => new GetTrainingByIdServiceOutput(id, location, distance, duration, date, createdAt, account);
+}
+
+public sealed record GetTrainingByIdServiceOutputAccountOutput
+{
+    public string Id { get; }
+    public string FirstName { get; }
+    public string Surname { get; }
+    public string Email { get; }
+    public DateTime CreatedAt { get; }
+
+    public GetTrainingByIdServiceOutputAccountOutput(string id, string firstName, string surname, string email, DateTime createdAt)
+    {
+        Id = id;
+        FirstName = firstName;
+        Surname = surname;
+        Email = email;
+        CreatedAt = createdAt;
+    }
 }

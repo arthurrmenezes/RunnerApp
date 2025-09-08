@@ -2,6 +2,7 @@
 using RunnerApp.Application.Services.TrainingContext.Inputs;
 using RunnerApp.Application.Services.TrainingContext.Interfaces;
 using RunnerApp.Domain.ValueObjects;
+using RunnerApp.WebApi.Controllers.TrainingContext.Payloads;
 
 namespace RunnerApp.WebApi.Controllers.TrainingContext;
 
@@ -18,14 +19,22 @@ public class TrainingController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> CreateTrainingAsync(
-        [FromBody] CreateTrainingServiceInput input,
+        [FromBody] CreateTrainingPayload input,
         CancellationToken cancellationToken)
     {
+        if (!Guid.TryParse(input.AccountId, out var guid))
+            throw new ArgumentException("The provided ID is not a valid GUID.");
+
         var training = await _trainingService.CreateTrainingServiceAsync(
-            input: input,
+            input: CreateTrainingServiceInput.Factory(
+                accountId: IdValueObject.Factory(guid),
+                location: input.Location,
+                distance: input.Distance,
+                duration: input.Duration,
+                date: input.Date),
             cancellationToken: cancellationToken);
 
-        return CreatedAtAction(nameof(GetTrainingByIdAsync), new { id = training.Id }, training);
+        return CreatedAtAction("GetTrainingById", new { id = training.Id }, training);
     }
 
     [HttpGet]
@@ -44,7 +53,7 @@ public class TrainingController : ControllerBase
         return Ok(training);
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("{id}")]
     public async Task<IActionResult> UpdateTrainingByIdAsync(
         string id,
@@ -53,6 +62,9 @@ public class TrainingController : ControllerBase
     {
         if (!Guid.TryParse(id, out var guid))
             throw new ArgumentException("The provided ID is not a valid GUID.");
+
+        if (input.Location is null && input.Distance is null && input.Duration is null && input.Date is null)
+            return BadRequest("At least one field must be provided for the update.");
 
         var training = await _trainingService.UpdateTrainingByIdServiceAsync(
             id: IdValueObject.Factory(guid),
