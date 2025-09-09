@@ -63,8 +63,11 @@ public class TrainingController : ControllerBase
         if (!Guid.TryParse(id, out var guid))
             throw new ArgumentException("The provided ID is not a valid GUID.");
 
-        if (input.Location is null && input.Distance is null && input.Duration is null && input.Date is null)
-            return BadRequest("At least one field must be provided for the update.");
+        if (input.Location is null && 
+            input.Distance is null && 
+            input.Duration is null && 
+            input.Date is null)
+            throw new ArgumentException("At least one field must be provided for the update.");
 
         var training = await _trainingService.UpdateTrainingByIdServiceAsync(
             id: IdValueObject.Factory(guid),

@@ -4,10 +4,10 @@ namespace RunnerApp.Application.Services.TrainingContext.Inputs;
 
 public readonly struct UpdateTrainingByIdServiceInput
 {
-    public LocationType Location { get; init; }
-    public double Distance { get; init; }
-    public TimeSpan Duration { get; init; }
-    public DateTime Date { get; init; }
+    public LocationType? Location { get; init; }
+    public double? Distance { get; init; }
+    public TimeSpan? Duration { get; init; }
+    public DateTime? Date { get; init; }
 
     private UpdateTrainingByIdServiceInput(LocationType location, double distance, TimeSpan duration, DateTime date)
     {

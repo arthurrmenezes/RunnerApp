@@ -38,33 +38,46 @@ public class Training
     public static Training Factory(LocationType location, double distance, TimeSpan duration, DateTime date, IdValueObject accountId)
         => new Training(location, distance, duration, date, accountId);
 
-    public void UpdateTrainingDetails(LocationType location, double distance, TimeSpan duration, DateTime date)
+    public void UpdateTrainingDetails(LocationType? location, double? distance, TimeSpan? duration, DateTime? date)
     {
         ValidateDomain(location, distance, duration, date);
+
+        if (location.HasValue)
+            Location = location.Value;
+
+        if (distance.HasValue)
+            Distance = distance.Value;     
         
-        Location = location;
-        Distance = distance;      
-        Duration = duration;
-        Date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+        if (duration.HasValue)
+            Duration = duration.Value;
+
+        if (date.HasValue)
+            Date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
     }
     
-    private void ValidateDomain(LocationType location, double distance, TimeSpan duration, DateTime date)
+    private void ValidateDomain(LocationType? location, double? distance, TimeSpan? duration, DateTime? date)
     {
-        if (!Enum.IsDefined(typeof(LocationType), location))
-            throw new ArgumentException("Invalid location type.", nameof(location));
+        if (location.HasValue)
+            if (!Enum.IsDefined(typeof(LocationType), location))
+                throw new ArgumentException("Invalid location type.", nameof(location));
 
-        if (distance <= 0)
-            throw new ArgumentException("Distance must be greater than zero.", nameof(distance));
-        else if (distance > MaxDistanceKm)
-            throw new ArgumentException("Distance must be less than or equal to " + MaxDistanceKm + " km.", nameof(distance));
+        if (distance.HasValue)
+            if (distance <= 0)
+                throw new ArgumentException("Distance must be greater than zero.", nameof(distance));
+            else if (distance > MaxDistanceKm)
+                throw new ArgumentException("Distance must be less than or equal to " + MaxDistanceKm + " km.", nameof(distance));
 
-        if (duration < MinDuration)
-            throw new ArgumentException("Duration must be at least " + MinDuration.TotalSeconds + " seconds.", nameof(duration));
-        if (duration > MaxDuration)
-            throw new ArgumentException("Duration must be less than or equal to " + MaxDuration.TotalHours + " hours.", nameof(duration));
+        if (duration.HasValue)
+            if (duration < MinDuration)
+                throw new ArgumentException("Duration must be at least " + MinDuration.TotalSeconds + " seconds.", nameof(duration));
+            if (duration > MaxDuration)
+                throw new ArgumentException("Duration must be less than or equal to " + MaxDuration.TotalHours + " hours.", nameof(duration));
 
-        var dateUtc = DateTime.SpecifyKind(date, DateTimeKind.Utc);
-        if (dateUtc > DateTime.UtcNow.AddMinutes(5))
-            throw new ArgumentException("Training date cannot be in the future.", nameof(date));
+        if (date.HasValue)
+        {
+            var dateUtc = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
+            if (dateUtc > DateTime.UtcNow.AddMinutes(5))
+                throw new ArgumentException("Training date cannot be in the future.", nameof(date));
+        }
     }
 }

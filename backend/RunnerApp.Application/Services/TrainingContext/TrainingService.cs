@@ -81,9 +81,12 @@ public class TrainingService : ITrainingService
         CancellationToken cancellationToken)
     {
         var training = await _trainingRepository.GetTrainingByIdAsync(id, cancellationToken);
-
         if (training is null)
             throw new KeyNotFoundException($"No training with ID {id} was found.");
+
+        var account = await _accountRepository.GetAccountById(training.AccountId, cancellationToken);
+        if (account is null)
+            throw new KeyNotFoundException($"No account with ID {training.AccountId} was found.");
 
         training.UpdateTrainingDetails(
             location: input.Location,
@@ -99,7 +102,13 @@ public class TrainingService : ITrainingService
             distance: training.Distance,
             duration: training.Duration,
             date: training.Date,
-            createdAt: training.CreatedAt);
+            createdAt: training.CreatedAt,
+            account: new UpdateTrainingByIdServiceOutputAccountOutput(
+                id: account.Id.ToString(),
+                firstName: account.FirstName.ToString(),
+                surname: account.Surname.ToString(),
+                email: account.Email.ToString(),
+                createdAt: account.CreatedAt));
     }
 
     public async Task DeleteTrainingByIdServiceAsync(IdValueObject id, CancellationToken cancellationToken)
