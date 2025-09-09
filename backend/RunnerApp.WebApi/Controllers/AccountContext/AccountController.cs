@@ -42,8 +42,23 @@ public class AccountController : ControllerBase
             throw new ArgumentException("The provided ID is not a valid GUID.");
 
         var account = await _accountService.GetAccountByIdServiceAsync(
-            id: IdValueObject.Factory(guid), 
+            accountId: IdValueObject.Factory(guid), 
             cancellationToken: cancellationToken);
         return Ok(account);
+    }
+
+    [HttpGet]
+    [Route("{id}/trainings")]
+    public async Task<IActionResult> GetAllTrainingsByAccountIdAsync(
+        string id, 
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(id, out var guid))
+            throw new ArgumentException("The provided ID is not a valid GUID.");
+
+        var trainings = await _accountService.GetAllTrainingsByAccountIdServiceAsync(
+            accountId: IdValueObject.Factory(guid), 
+            cancellationToken: cancellationToken);
+        return Ok(trainings);
     }
 }
