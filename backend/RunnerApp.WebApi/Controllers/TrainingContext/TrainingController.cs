@@ -57,7 +57,7 @@ public class TrainingController : ControllerBase
     [Route("{id}")]
     public async Task<IActionResult> UpdateTrainingByIdAsync(
         string id,
-        [FromBody] UpdateTrainingByIdServiceInput input,
+        [FromBody] UpdateTrainingByIdPayload input,
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(id, out var guid))
@@ -71,7 +71,11 @@ public class TrainingController : ControllerBase
 
         var training = await _trainingService.UpdateTrainingByIdServiceAsync(
             id: IdValueObject.Factory(guid),
-            input: input,
+            input: UpdateTrainingByIdServiceInput.Factory(
+                location: input.Location,
+                distance: input.Distance,
+                duration: input.Duration,
+                date: input.Date),
             cancellationToken: cancellationToken);
 
         return Ok(training);

@@ -37,12 +37,7 @@ public class TrainingService : ITrainingService
 
         return CreateTrainingServiceOutput.Factory(
             id: training.Id.ToString(),
-            account: new CreateTrainingServiceOutputAccountOutput(
-                id: training.Account.Id.ToString(),
-                firstName: training.Account.FirstName,
-                surname: training.Account.Surname,
-                email: training.Account.Email,
-                createdAt: training.Account.CreatedAt),
+            accountId: account.Id.ToString(),
             location: training.Location,
             distance: training.Distance,
             duration: training.Duration,
@@ -62,12 +57,7 @@ public class TrainingService : ITrainingService
 
         return GetTrainingByIdServiceOutput.Factory(
             id: training.Id.ToString(),
-            account: new GetTrainingByIdServiceOutputAccountOutput(
-                id: account.Id.ToString(),
-                firstName: account.FirstName.ToString(),
-                surname: account.Surname.ToString(),
-                email: account.Email.ToString(),
-                createdAt: account.CreatedAt),
+            accountId: account.Id.ToString(),
             location: training.Location,
             distance: training.Distance,
             duration: training.Duration,

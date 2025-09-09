@@ -1,6 +1,4 @@
-﻿using RunnerApp.Domain.ValueObjects;
-
-namespace RunnerApp.Application.Services.AccountContext.Outputs;
+﻿namespace RunnerApp.Application.Services.AccountContext.Outputs;
 
 public readonly struct GetAccountByIdServiceOutput
 {

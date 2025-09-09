@@ -29,7 +29,7 @@ public class AccountController : ControllerBase
                 email: input.Email),
             cancellationToken: cancellationToken);
 
-        return CreatedAtAction(nameof(GetAccountByIdAsync), new { id = account.Id }, account);
+        return CreatedAtAction("GetAccountById", new { id = account.Id }, account);
     }
 
     [HttpGet]

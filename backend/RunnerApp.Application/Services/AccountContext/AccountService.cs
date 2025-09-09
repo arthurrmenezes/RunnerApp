@@ -36,8 +36,7 @@ public class AccountService : IAccountService
             firstName: account.FirstName,
             surname: account.Surname,
             email: account.Email,
-            createdAt: account.CreatedAt,
-            trainings: account.Trainings);
+            createdAt: account.CreatedAt);
     }
 
     public async Task<GetAccountByIdServiceOutput> GetAccountByIdServiceAsync(IdValueObject id, CancellationToken cancellationToken)

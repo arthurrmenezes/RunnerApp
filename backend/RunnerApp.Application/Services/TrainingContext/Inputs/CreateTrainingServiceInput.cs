@@ -5,11 +5,11 @@ namespace RunnerApp.Application.Services.TrainingContext.Inputs;
 
 public readonly struct CreateTrainingServiceInput
 {
-    public IdValueObject AccountId { get; init; }
-    public LocationType Location { get; init; }
-    public double Distance { get; init; }
-    public TimeSpan Duration { get; init; }
-    public DateTime Date { get; init; }
+    public IdValueObject AccountId { get; }
+    public LocationType Location { get; }
+    public double Distance { get; }
+    public TimeSpan Duration { get; }
+    public DateTime Date { get; }
 
     private CreateTrainingServiceInput(IdValueObject accountId, LocationType location, double distance, TimeSpan duration, DateTime date)
     {
