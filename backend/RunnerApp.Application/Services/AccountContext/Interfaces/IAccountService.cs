@@ -13,8 +13,4 @@ public interface IAccountService
     public Task<GetAccountByIdServiceOutput> GetAccountByIdServiceAsync(
         IdValueObject accountId, 
         CancellationToken cancellationToken);
-
-    public Task<GetAllTrainingsByAccountIdServiceOutput> GetAllTrainingsByAccountIdServiceAsync(
-        IdValueObject accountId, 
-        CancellationToken cancellationToken);
 }

@@ -52,27 +52,4 @@ public class AccountService : IAccountService
             email: account.Email,
             createdAt: account.CreatedAt);
     }
-
-    public async Task<GetAllTrainingsByAccountIdServiceOutput> GetAllTrainingsByAccountIdServiceAsync(IdValueObject accountId, CancellationToken cancellationToken)
-    {
-        var account = await _accountRepository.GetAccountById(accountId, cancellationToken);
-        if (account is null)
-            throw new KeyNotFoundException($"Account with ID {accountId} not found.");
-
-        var trainings = await _trainingRepository.GetAllTrainingsByAccountIdAsync(accountId, cancellationToken);
-
-        var output = trainings.Select(training => new GetAllTrainingsByAccountIdServiceOutputTrainingOutput(
-            id: training.Id.ToString(),
-            location: training.Location,
-            distance: training.Distance,
-            duration: training.Duration,
-            date: training.Date,
-            createdAt: training.CreatedAt)).ToArray();
-
-        var totalTrainingsOutput = output.Length;
-
-        return GetAllTrainingsByAccountIdServiceOutput.Factory(
-            totalTrainings: totalTrainingsOutput,
-            trainings: output);
-    }
 }

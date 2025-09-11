@@ -1,4 +1,5 @@
-﻿using RunnerApp.Application.Services.TrainingContext.Inputs;
+﻿using RunnerApp.Application.Services.AccountContext.Outputs;
+using RunnerApp.Application.Services.TrainingContext.Inputs;
 using RunnerApp.Application.Services.TrainingContext.Outputs;
 using RunnerApp.Domain.ValueObjects;
 
@@ -22,4 +23,10 @@ public interface ITrainingService
     public Task DeleteTrainingByIdServiceAsync(
         IdValueObject id,
         CancellationToken cancellationToken);
+
+    public Task<GetAllTrainingsByAccountIdServiceOutput> GetAllTrainingsByAccountIdServiceAsync(
+        IdValueObject accountId,
+        CancellationToken cancellationToken);
+
+
 }

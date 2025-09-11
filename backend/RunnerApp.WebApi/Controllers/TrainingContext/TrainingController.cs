@@ -12,10 +12,10 @@ public class TrainingController : ControllerBase
 {
     private readonly ITrainingService _trainingService;
 
-    public TrainingController(ITrainingService trainingService)
+	public TrainingController(ITrainingService trainingService)
     {
         _trainingService = trainingService;
-    }
+	}
 
     [HttpPost]
     public async Task<IActionResult> CreateTrainingAsync(
@@ -96,4 +96,19 @@ public class TrainingController : ControllerBase
 
         return NoContent();
     }
+
+	[HttpGet]
+	[Route("{id}/trainings")]
+	public async Task<IActionResult> GetAllTrainingsByAccountIdAsync(
+		string accountId,
+		CancellationToken cancellationToken)
+	{
+		if (!Guid.TryParse(accountId, out var guid))
+			throw new ArgumentException("The provided ID is not a valid GUID.");
+
+		var trainings = await _trainingService.GetAllTrainingsByAccountIdServiceAsync(
+			accountId: IdValueObject.Factory(guid),
+			cancellationToken: cancellationToken);
+		return Ok(trainings);
+	}
 }
