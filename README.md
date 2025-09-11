@@ -2,36 +2,59 @@
 
 **API de gerenciamento de treinos de corrida.**
 
+## Visão Geral do Projeto
+
+Esta é uma API RESTful desenvolvida como um projeto pessoal para gerenciar e registrar treinos de corrida. A aplicação permite que usuários criem contas e registrem suas atividades de corrida, salvando informações detalhadas como distância, duração, local e data.
+
+O projeto foi construído com **.NET 8** e **C#**, seguindo os princípios da **Clean Architecture** para garantir um código desacoplado, testável, escalável e de fácil manutenção.
+
 ## 💻 Tecnologias
 - C# / .NET 8
 - Entity Framework Core
 - PostgreSQL
 - Clean Architecture
+- Domain-Driven Design (DDD)
 - Arquitetura em camadas (Application, Domain, Infrastructure, WebAPI)
+- Dependency Injection (DI)
+- Swagger (documentação da API)
 
 ---
 
-## 🚀 Como rodar o projeto
+## 🚀 Como executar o projeto
 
-```bash
-# Clonar o repositório
-git clone https://github.com/seuusuario/RunnerApp.git
+### Pré-requisitos
+* [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+* [PostgreSQL](https://www.postgresql.org/download/)
 
-# Entrar na pasta backend
-cd RunnerApp/backend
+### Passos
 
-# Restaurar dependências
-dotnet restore
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/arthurrmenezes/RunnerApp.git
+    cd RunnerApp
+    ```
 
-# Rodar a aplicação
-dotnet run
-A API rodará por padrão em https://localhost:7077.
-```
+2.  **Configure a Connection String:**
+    Abra o arquivo `appsettings.Development.json` e atualize a `PostgreSQLConnectionString` com as suas credenciais do PostgreSQL.
+    ```json
+    "PostgreSQLConnectionString": {
+      "DefaultConnection": "Server=localhost;Port=5432;Database=RunnerAppDb;User Id=seu-usuario;Password=sua-senha;"
+    }
+    ```
 
-<h2 id="technologies">🚀 Endpoints</h2>
-<b>Training</b>
-- POST api/v1/training/create → Cria um treino
-- GET api/v1/training/{id} → Busca um treino pelo ID
+3.  **Aplique as Migrations do Entity Framework:**
+    Este comando irá criar o banco de dados e todas as tabelas necessárias.
+    ```bash
+    dotnet ef database update
+    ```
+
+4.  **Execute a Aplicação:**
+    ```bash
+    dotnet run
+    ```
+A API estará rodando e pronta para receber requisições!
+
+---
 
 <b>Desenvolvido por Arthur Menezes.</b>
 https://www.linkedin.com/in/arthuralbuquerquemenezes/
