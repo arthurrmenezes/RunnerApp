@@ -15,6 +15,7 @@ O projeto foi construído com **.NET 8** e **C#**, seguindo os princípios da **
 - Clean Architecture
 - Domain-Driven Design (DDD)
 - Arquitetura em camadas (Application, Domain, Infrastructure, WebAPI)
+- Identity (Autenticação)
 - Dependency Injection (DI)
 - Swagger (documentação da API)
 
@@ -57,4 +58,4 @@ A API estará rodando e pronta para receber requisições!
 ---
 
 <b>Desenvolvido por Arthur Menezes.</b>
-https://www.linkedin.com/in/arthuralbuquerquemenezes/
+linkedin.com/in/arthuralbuquerquemenezes/
