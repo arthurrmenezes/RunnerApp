@@ -1,11 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RunnerApp.Domain.BoundedContexts.AccountContext.Entities;
 using RunnerApp.Domain.BoundedContexts.TrainingContext.Entities;
 using RunnerApp.Infrastructure.Data.Mappings;
+using RunnerApp.Infrastructure.Identity;
 
 namespace RunnerApp.Infrastructure.Data;
 
-public sealed class DataContext : DbContext
+public sealed class DataContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     public DbSet<Training> Trainings { get; set; }
     public DbSet<Account> Accounts { get; set; }
@@ -16,6 +19,7 @@ public sealed class DataContext : DbContext
     {
         modelBuilder.ApplyConfiguration(new TrainingMapping());
         modelBuilder.ApplyConfiguration(new AccountMapping());
+        modelBuilder.ApplyConfiguration(new ApplicationUserMapping());
         base.OnModelCreating(modelBuilder);
     }
 }

@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RunnerApp.Application.Services.AccountContext.Inputs;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RunnerApp.Application.Services.AccountContext.Interfaces;
 using RunnerApp.Domain.ValueObjects;
-using RunnerApp.WebApi.Controllers.AccountContext.Payloads;
 
 namespace RunnerApp.WebApi.Controllers.AccountContext;
 
@@ -17,23 +16,8 @@ public class AccountController : ControllerBase
         _accountService = accountService;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateAccountAsync(
-        [FromBody] CreateAccountPayload input,
-        CancellationToken cancellationToken)
-    {
-        var account = await _accountService.CreateAccountServiceAsync(
-            input: CreateAccountServiceInput.Factory(
-                firstName: input.FirstName,
-                surname: input.Surname,
-                email: input.Email),
-            cancellationToken: cancellationToken);
-
-        return CreatedAtAction("GetAccountById", new { id = account.Id }, account);
-    }
-
-    [HttpGet]
-    [Route("{id}")]
+    [HttpGet("{id}", Name = "GetAccountById")]
+    [Authorize]
     public async Task<IActionResult> GetAccountByIdAsync(
         string id, 
         CancellationToken cancellationToken)

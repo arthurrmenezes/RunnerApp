@@ -19,4 +19,8 @@
     <ProjectReference Include="..\RunnerApp.Infrastructure\RunnerApp.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\AccountContext\Payloads\" />
+  </ItemGroup>
+
 </Project>

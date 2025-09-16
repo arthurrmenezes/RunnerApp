@@ -14,6 +14,7 @@ public class Program
         const string connectionString = "Dependencies:Infrastructure:Data:PostgreSQLConnectionString";
 
         builder.Services.ApplyInfrastructureDependenciesConfiguration(
+            configuration: builder.Configuration,
             connectionString: builder.Configuration[connectionString]!);
 
         #endregion
@@ -46,6 +47,9 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapControllers();
 

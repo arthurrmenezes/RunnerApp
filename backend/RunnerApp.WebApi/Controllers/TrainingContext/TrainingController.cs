@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RunnerApp.Application.Services.TrainingContext.Inputs;
 using RunnerApp.Application.Services.TrainingContext.Interfaces;
 using RunnerApp.Domain.ValueObjects;
@@ -18,6 +19,7 @@ public class TrainingController : ControllerBase
 	}
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateTrainingAsync(
         [FromBody] CreateTrainingPayload input,
         CancellationToken cancellationToken)
@@ -39,6 +41,7 @@ public class TrainingController : ControllerBase
 
     [HttpGet]
     [Route("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetTrainingByIdAsync(
         string id,
         CancellationToken cancellationToken)
@@ -55,6 +58,7 @@ public class TrainingController : ControllerBase
 
     [HttpPatch]
     [Route("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateTrainingByIdAsync(
         string id,
         [FromBody] UpdateTrainingByIdPayload input,
@@ -83,6 +87,7 @@ public class TrainingController : ControllerBase
 
     [HttpDelete]
     [Route("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteTrainingByIdAsync(
         string id,
         CancellationToken cancellationToken)
@@ -99,7 +104,8 @@ public class TrainingController : ControllerBase
 
 	[HttpGet]
 	[Route("{id}/trainings")]
-	public async Task<IActionResult> GetAllTrainingsByAccountIdAsync(
+    [Authorize]
+    public async Task<IActionResult> GetAllTrainingsByAccountIdAsync(
 		string accountId,
 		CancellationToken cancellationToken)
 	{

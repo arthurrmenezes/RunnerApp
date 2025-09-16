@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RunnerApp.Application.Services.AccountContext;
 using RunnerApp.Application.Services.AccountContext.Interfaces;
+using RunnerApp.Application.Services.AuthContext;
+using RunnerApp.Application.Services.AuthContext.Interfaces;
 using RunnerApp.Application.Services.TrainingContext;
 using RunnerApp.Application.Services.TrainingContext.Interfaces;
 
@@ -12,6 +14,7 @@ public static class DependencyInjection
     {
         serviceCollection.AddScoped<ITrainingService, TrainingService>();
         serviceCollection.AddScoped<IAccountService, AccountService>();
+        serviceCollection.AddScoped<IAuthService, AuthService>();
 
         return serviceCollection;
     }
