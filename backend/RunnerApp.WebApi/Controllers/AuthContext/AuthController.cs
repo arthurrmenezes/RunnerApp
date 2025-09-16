@@ -33,4 +33,19 @@ public class AuthController : ControllerBase
 
         return CreatedAtRoute("GetAccountById", new { id = result.AccountId }, result);
     }
+
+    [HttpPost]
+    [Route("login")]
+    public async Task<IActionResult> LoginUserAccountAsync(LoginUserAccountPayload input, CancellationToken cancellationToken)
+    {
+        var serviceInput = LoginUserAccountServiceInput.Factory(
+            email: input.Email,
+            password: input.Password);
+        
+        var result = await _authService.LoginUserAccountServiceAsync(
+            input: serviceInput, 
+            cancellationToken: cancellationToken);
+
+        return Ok(result);
+    }
 }

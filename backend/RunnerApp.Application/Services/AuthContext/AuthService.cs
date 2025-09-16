@@ -10,10 +10,14 @@ namespace RunnerApp.Application.Services.AuthContext;
 public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly TokenService _tokenService;
 
-    public AuthService(UserManager<ApplicationUser> userManager)
+    public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, TokenService tokenService)
     {
         _userManager = userManager;
+        _signInManager = signInManager;
+        _tokenService = tokenService;
     }
 
     public async Task<RegisterUserAccountServiceOutput> RegisterUserAccountServiceAsync(
@@ -50,6 +54,26 @@ public class AuthService : IAuthService
             surname: account.Surname.ToString(),
             email: account.Email.ToString(),
             createdAt: account.CreatedAt);
+
+        return output;
+    }
+
+    public async Task<LoginUserAccountServiceOutput> LoginUserAccountServiceAsync(
+        LoginUserAccountServiceInput input, 
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByEmailAsync(input.Email);
+        if (user is null)
+            throw new ArgumentException("Invalid email or password.");
+
+        var result = await _signInManager.PasswordSignInAsync(user, input.Password, false, false);
+        if (!result.Succeeded)
+            throw new ArgumentException("Invalid email or password.");
+
+        var token = _tokenService.GenerateToken(user);
+
+        var output = LoginUserAccountServiceOutput.Factory(
+            acessToken: token);
 
         return output;
     }

@@ -1,6 +1,4 @@
-﻿using RunnerApp.Domain.ValueObjects;
-
-namespace RunnerApp.WebApi.Controllers.AuthContext.Payloads;
+﻿namespace RunnerApp.WebApi.Controllers.AuthContext.Payloads;
 
 public readonly struct RegisterUserAccountPayload
 {

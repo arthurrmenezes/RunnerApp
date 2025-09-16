@@ -41,7 +41,7 @@ public static class DependencyInjection
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 3;
+                options.Password.RequiredLength = 6;
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
@@ -57,18 +57,18 @@ public static class DependencyInjection
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
+                    ValidIssuer = configuration["JwtSettings:Issuer"],
                     ValidateAudience = true,
+                    ValidAudience = configuration["JwtSettings:Audience"],
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["JwtSettings:Issuer"],
-                    ValidAudience = configuration["JwtSettings:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(configuration["JwtSettings:PrivateKey"]!))
                 };
             });
         serviceCollection.AddAuthorization();
 
-        serviceCollection.AddScoped<TokenGenerator>();
+        serviceCollection.AddScoped<TokenService>();
 
         #endregion
 
