@@ -73,7 +73,7 @@ public class AuthService : IAuthService
         var token = _tokenService.GenerateToken(user);
 
         var output = LoginUserAccountServiceOutput.Factory(
-            acessToken: token);
+            accessToken: token);
 
         return output;
     }

@@ -12,21 +12,23 @@ public interface ITrainingService
         CancellationToken cancellationToken);
 
     public Task<GetTrainingByIdServiceOutput> GetTrainingByIdServiceAsync(
-        IdValueObject id,
+        IdValueObject trainingId,
+        IdValueObject accountId,
         CancellationToken cancellationToken);
 
     public Task<UpdateTrainingByIdServiceOutput> UpdateTrainingByIdServiceAsync(
-        IdValueObject id,
+        IdValueObject trainingId,
+        IdValueObject accountId,
         UpdateTrainingByIdServiceInput input,
         CancellationToken cancellationToken);
 
     public Task DeleteTrainingByIdServiceAsync(
-        IdValueObject id,
+        IdValueObject trainingId,
+        IdValueObject accountId,
         CancellationToken cancellationToken);
 
     public Task<GetAllTrainingsByAccountIdServiceOutput> GetAllTrainingsByAccountIdServiceAsync(
         IdValueObject accountId,
+        IdValueObject callerAccountId,
         CancellationToken cancellationToken);
-
-
 }

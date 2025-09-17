@@ -19,14 +19,14 @@ public class AccountController : ControllerBase
     [HttpGet("{id}", Name = "GetAccountById")]
     [Authorize]
     public async Task<IActionResult> GetAccountByIdAsync(
-        string id, 
+        string id,
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(id, out var guid))
             throw new ArgumentException("The provided ID is not a valid GUID.");
 
         var account = await _accountService.GetAccountByIdServiceAsync(
-            accountId: IdValueObject.Factory(guid), 
+            accountId: IdValueObject.Factory(guid),
             cancellationToken: cancellationToken);
         return Ok(account);
     }

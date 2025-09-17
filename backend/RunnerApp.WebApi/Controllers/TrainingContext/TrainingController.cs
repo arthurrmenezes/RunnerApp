@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RunnerApp.Application.Services.TrainingContext.Inputs;
 using RunnerApp.Application.Services.TrainingContext.Interfaces;
 using RunnerApp.Domain.ValueObjects;
+using RunnerApp.Infrastructure.Identity;
 using RunnerApp.WebApi.Controllers.TrainingContext.Payloads;
 
 namespace RunnerApp.WebApi.Controllers.TrainingContext;
@@ -12,10 +15,12 @@ namespace RunnerApp.WebApi.Controllers.TrainingContext;
 public class TrainingController : ControllerBase
 {
     private readonly ITrainingService _trainingService;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-	public TrainingController(ITrainingService trainingService)
+    public TrainingController(ITrainingService trainingService, UserManager<ApplicationUser> userManager)
     {
         _trainingService = trainingService;
+        _userManager = userManager;
 	}
 
     [HttpPost]
@@ -24,57 +29,74 @@ public class TrainingController : ControllerBase
         [FromBody] CreateTrainingPayload input,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(input.AccountId, out var guid))
-            throw new ArgumentException("The provided ID is not a valid GUID.");
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            throw new ArgumentException("Invalid token: 'sub' claim (user identifier) is missing or empty.");
+
+        var applicationUser = await _userManager.FindByIdAsync(userId);
+        if (applicationUser is null)
+            throw new ArgumentException("The user associated with this token was not found.");
 
         var training = await _trainingService.CreateTrainingServiceAsync(
             input: CreateTrainingServiceInput.Factory(
-                accountId: IdValueObject.Factory(guid),
+                accountId: IdValueObject.Factory(applicationUser.AccountId),
                 location: input.Location,
                 distance: input.Distance,
                 duration: input.Duration,
                 date: input.Date),
             cancellationToken: cancellationToken);
 
-        return CreatedAtAction("GetTrainingById", new { id = training.Id }, training);
+        return CreatedAtAction("GetTrainingById", new { trainingId = training.TrainingId }, training);
     }
 
     [HttpGet]
-    [Route("{id}")]
+    [Route("{trainingId}")]
     [Authorize]
     public async Task<IActionResult> GetTrainingByIdAsync(
-        string id,
+        [FromRoute] string trainingId,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(id, out var guid))
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            throw new ArgumentException("Invalid token: 'sub' claim (user identifier) is missing or empty.");
+
+        var applicationUser = await _userManager.FindByIdAsync(userId);
+        if (applicationUser is null)
+            throw new ArgumentException("The user associated with this token was not found.");
+        
+        if (!Guid.TryParse(trainingId, out var guid))
             throw new ArgumentException("The provided ID is not a valid GUID.");
 
         var training = await _trainingService.GetTrainingByIdServiceAsync(
-            id: IdValueObject.Factory(guid),
+            trainingId: IdValueObject.Factory(guid),
+            accountId: IdValueObject.Factory(applicationUser.AccountId),
             cancellationToken: cancellationToken);
 
         return Ok(training);
     }
 
     [HttpPatch]
-    [Route("{id}")]
+    [Route("{trainingId}")]
     [Authorize]
     public async Task<IActionResult> UpdateTrainingByIdAsync(
-        string id,
+        [FromRoute] string trainingId,
         [FromBody] UpdateTrainingByIdPayload input,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(id, out var guid))
+        if (!Guid.TryParse(trainingId, out var guid))
             throw new ArgumentException("The provided ID is not a valid GUID.");
 
-        if (input.Location is null && 
-            input.Distance is null && 
-            input.Duration is null && 
-            input.Date is null)
-            throw new ArgumentException("At least one field must be provided for the update.");
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            throw new ArgumentException("Invalid token: user identifier is missing.");
+
+        var applicationUser = await _userManager.FindByIdAsync(userId);
+        if (applicationUser is null)
+            throw new ArgumentException("User not found.");
 
         var training = await _trainingService.UpdateTrainingByIdServiceAsync(
-            id: IdValueObject.Factory(guid),
+            trainingId: IdValueObject.Factory(guid),
+            accountId: applicationUser.AccountId,
             input: UpdateTrainingByIdServiceInput.Factory(
                 location: input.Location,
                 distance: input.Distance,
@@ -86,35 +108,53 @@ public class TrainingController : ControllerBase
     }
 
     [HttpDelete]
-    [Route("{id}")]
+    [Route("{trainingId}")]
     [Authorize]
     public async Task<IActionResult> DeleteTrainingByIdAsync(
-        string id,
+        [FromRoute] string trainingId,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(id, out var guid))
+        if (!Guid.TryParse(trainingId, out var guid))
             throw new ArgumentException("The provided ID is not a valid GUID.");
 
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            throw new ArgumentException("Invalid token: user identifier is missing.");
+
+        var applicationUser = await _userManager.FindByIdAsync(userId);
+        if (applicationUser is null)
+            throw new ArgumentException("User not found.");
+
         await _trainingService.DeleteTrainingByIdServiceAsync(
-            id: IdValueObject.Factory(guid),
+            trainingId: IdValueObject.Factory(guid),
+            accountId: applicationUser.AccountId,
             cancellationToken: cancellationToken);
 
         return NoContent();
     }
 
-	[HttpGet]
-	[Route("{id}/trainings")]
+    [HttpGet]
+    [Route("account/{accountId}/trainings")]
     [Authorize]
     public async Task<IActionResult> GetAllTrainingsByAccountIdAsync(
-		string accountId,
-		CancellationToken cancellationToken)
-	{
-		if (!Guid.TryParse(accountId, out var guid))
-			throw new ArgumentException("The provided ID is not a valid GUID.");
+        [FromRoute] string accountId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(accountId, out var guid))
+            throw new ArgumentException("The provided ID is not a valid GUID.");
 
-		var trainings = await _trainingService.GetAllTrainingsByAccountIdServiceAsync(
-			accountId: IdValueObject.Factory(guid),
-			cancellationToken: cancellationToken);
-		return Ok(trainings);
-	}
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            throw new ArgumentException("Invalid token: user identifier is missing.");
+
+        var applicationUser = await _userManager.FindByIdAsync(userId);
+        if (applicationUser is null)
+            throw new ArgumentException("User not found.");
+
+        var trainings = await _trainingService.GetAllTrainingsByAccountIdServiceAsync(
+            accountId: IdValueObject.Factory(guid),
+            callerAccountId: applicationUser.AccountId,
+            cancellationToken: cancellationToken);
+        return Ok(trainings);
+    }
 }

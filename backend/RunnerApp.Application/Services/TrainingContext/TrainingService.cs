@@ -20,12 +20,12 @@ public class TrainingService : ITrainingService
     }
 
     public async Task<CreateTrainingServiceOutput> CreateTrainingServiceAsync(
-        CreateTrainingServiceInput input, 
+        CreateTrainingServiceInput input,
         CancellationToken cancellationToken)
     {
         var account = await _accountRepository.GetAccountById(input.AccountId, cancellationToken);
         if (account is null)
-            throw new KeyNotFoundException("No account with ID {id} was found.");
+            throw new KeyNotFoundException($"No account with ID {input.AccountId} was found.");
 
         var training = Training.Factory(
             location: input.Location,
@@ -37,7 +37,7 @@ public class TrainingService : ITrainingService
         await _trainingRepository.CreateTrainingAsync(training, cancellationToken);
 
         return CreateTrainingServiceOutput.Factory(
-            id: training.Id.ToString(),
+            trainingId: training.Id.ToString(),
             accountId: account.Id.ToString(),
             location: training.Location,
             distance: training.Distance,
@@ -46,19 +46,21 @@ public class TrainingService : ITrainingService
             createdAt: training.CreatedAt);
     }
 
-    public async Task<GetTrainingByIdServiceOutput> GetTrainingByIdServiceAsync(IdValueObject id, CancellationToken cancellationToken)
+    public async Task<GetTrainingByIdServiceOutput> GetTrainingByIdServiceAsync(
+        IdValueObject trainingId,
+        IdValueObject accountId,
+        CancellationToken cancellationToken)
     {
-        var training = await _trainingRepository.GetTrainingByIdAsync(id, cancellationToken);
+        var training = await _trainingRepository.GetTrainingByIdAsync(trainingId, cancellationToken);
         if (training is null)
-            throw new KeyNotFoundException($"No training with ID {id} was found.");
+            throw new KeyNotFoundException($"No training with ID {trainingId} was found.");
 
-        var account = await _accountRepository.GetAccountById(training.AccountId, cancellationToken);
-        if (account is null)
-            throw new KeyNotFoundException($"No account with ID {training.AccountId} was found.");
+        if (training.AccountId.ToString() != accountId.ToString())
+            throw new UnauthorizedAccessException("The training does not belong to the specified account.");
 
         return GetTrainingByIdServiceOutput.Factory(
-            id: training.Id.ToString(),
-            accountId: account.Id.ToString(),
+            trainingId: training.Id.ToString(),
+            accountId: accountId.ToString(),
             location: training.Location,
             distance: training.Distance,
             duration: training.Duration,
@@ -67,17 +69,23 @@ public class TrainingService : ITrainingService
     }
 
     public async Task<UpdateTrainingByIdServiceOutput> UpdateTrainingByIdServiceAsync(
-        IdValueObject id, 
+        IdValueObject trainingId,
+        IdValueObject accountId,
         UpdateTrainingByIdServiceInput input, 
         CancellationToken cancellationToken)
     {
-        var training = await _trainingRepository.GetTrainingByIdAsync(id, cancellationToken);
-        if (training is null)
-            throw new KeyNotFoundException($"No training with ID {id} was found.");
+        if (input.Location is null &&
+            input.Distance is null &&
+            input.Duration is null &&
+            input.Date is null)
+            throw new ArgumentException("At least one field must be provided for the update.");
 
-        var account = await _accountRepository.GetAccountById(training.AccountId, cancellationToken);
-        if (account is null)
-            throw new KeyNotFoundException($"No account with ID {training.AccountId} was found.");
+        var training = await _trainingRepository.GetTrainingByIdAsync(trainingId, cancellationToken);
+        if (training is null)
+            throw new KeyNotFoundException($"No training with ID {trainingId} was found.");
+
+        if (training.AccountId.ToString() != accountId.ToString())
+            throw new UnauthorizedAccessException("You cannot update a training that does not belong to your account.");
 
         training.UpdateTrainingDetails(
             location: input.Location,
@@ -87,6 +95,10 @@ public class TrainingService : ITrainingService
 
         await _trainingRepository.UpdateTrainingAsync(training, cancellationToken);
 
+        var account = await _accountRepository.GetAccountById(accountId, cancellationToken);
+        if (account is null)
+            throw new KeyNotFoundException($"No account with ID {accountId} was found.");
+
         return UpdateTrainingByIdServiceOutput.Factory(
             id: training.Id.ToString(),
             location: training.Location,
@@ -95,32 +107,39 @@ public class TrainingService : ITrainingService
             date: training.Date,
             createdAt: training.CreatedAt,
             account: new UpdateTrainingByIdServiceOutputAccountOutput(
-                id: account.Id.ToString(),
+                id: accountId.ToString(),
                 firstName: account.FirstName.ToString(),
                 surname: account.Surname.ToString(),
                 email: account.Email.ToString(),
                 createdAt: account.CreatedAt));
     }
 
-    public async Task DeleteTrainingByIdServiceAsync(IdValueObject id, CancellationToken cancellationToken)
+    public async Task DeleteTrainingByIdServiceAsync(
+        IdValueObject trainingId,
+        IdValueObject accountId,
+        CancellationToken cancellationToken)
     {
-        var training = await _trainingRepository.GetTrainingByIdAsync(id, cancellationToken);
-
+        var training = await _trainingRepository.GetTrainingByIdAsync(trainingId, cancellationToken);
         if (training is null)
-            throw new KeyNotFoundException($"No training with ID {id} was found.");
+            throw new KeyNotFoundException($"No training with ID {trainingId} was found.");
+
+        if (training.AccountId.ToString() != accountId.ToString())
+            throw new UnauthorizedAccessException("You cannot delete a training that does not belong to your account.");
 
         await _trainingRepository.DeleteTrainingAsync(training, cancellationToken);
     }
 
-	public async Task<GetAllTrainingsByAccountIdServiceOutput> GetAllTrainingsByAccountIdServiceAsync(IdValueObject accountId, CancellationToken cancellationToken)
+	public async Task<GetAllTrainingsByAccountIdServiceOutput> GetAllTrainingsByAccountIdServiceAsync(
+        IdValueObject accountId,
+        IdValueObject callerAccountId,
+        CancellationToken cancellationToken)
 	{
-		var account = await _accountRepository.GetAccountById(accountId, cancellationToken);
-		if (account is null)
-			throw new KeyNotFoundException($"Account with ID {accountId} not found.");
+        if (accountId.ToString() != callerAccountId.ToString())
+            throw new UnauthorizedAccessException("You are not allowed to view trainings of other accounts.");
 
-		var trainings = await _trainingRepository.GetAllTrainingsByAccountIdAsync(accountId, cancellationToken);
+        var trainings = await _trainingRepository.GetAllTrainingsByAccountIdAsync(accountId, cancellationToken);
 
-		var output = trainings.Select(training => new GetAllTrainingsByAccountIdServiceOutputTrainingOutput(
+        var output = trainings.Select(training => new GetAllTrainingsByAccountIdServiceOutputTrainingOutput(
 			id: training.Id.ToString(),
 			location: training.Location,
 			distance: training.Distance,
@@ -128,7 +147,7 @@ public class TrainingService : ITrainingService
 			date: training.Date,
 			createdAt: training.CreatedAt)).ToArray();
 
-		var totalTrainingsOutput = output.Length;
+        var totalTrainingsOutput = output.Length;
 
 		return GetAllTrainingsByAccountIdServiceOutput.Factory(
 			totalTrainings: totalTrainingsOutput,

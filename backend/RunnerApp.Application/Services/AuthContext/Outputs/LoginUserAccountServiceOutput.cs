@@ -2,13 +2,13 @@
 
 public readonly struct LoginUserAccountServiceOutput
 {
-    public string AcessToken { get; }
+    public string AccessToken { get; }
 
-    private LoginUserAccountServiceOutput(string acessToken)
+    private LoginUserAccountServiceOutput(string accessToken)
     {
-        AcessToken = acessToken;
+        AccessToken = accessToken;
     }
 
-    public static LoginUserAccountServiceOutput Factory(string acessToken)
-        => new LoginUserAccountServiceOutput(acessToken);
+    public static LoginUserAccountServiceOutput Factory(string accessToken)
+        => new LoginUserAccountServiceOutput(accessToken);
 }
