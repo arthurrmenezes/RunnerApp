@@ -20,11 +20,11 @@ O projeto foi construído com **.NET 8** e **C#**, seguindo os princípios da **
 - Dependency Injection (DI)
 - Swagger (documentação da API)
 
-## Funcionalidades
-# Autenticação
+# Funcionalidades
+## Autenticação
 - Cadastro e login de contas
 - Login com JWT Token
-# Treinos
+## Treinos
 - Cadastro, listagem, edição e deletar
 
 ---
