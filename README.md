@@ -15,9 +15,17 @@ O projeto foi construído com **.NET 8** e **C#**, seguindo os princípios da **
 - Clean Architecture
 - Domain-Driven Design (DDD)
 - Arquitetura em camadas (Application, Domain, Infrastructure, WebAPI)
-- Identity (Autenticação)
+- Identity (Autenticação e Autorização)
+- Tokens JWT
 - Dependency Injection (DI)
 - Swagger (documentação da API)
+
+## Funcionalidades
+# Autenticação
+- Cadastro e login de contas
+- Login com JWT Token
+# Treinos
+- Cadastro, listagem, edição e deletar
 
 ---
 
