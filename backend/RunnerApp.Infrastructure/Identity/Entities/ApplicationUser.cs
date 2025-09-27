@@ -2,10 +2,11 @@
 using RunnerApp.Domain.BoundedContexts.AccountContext.Entities;
 using RunnerApp.Domain.ValueObjects;
 
-namespace RunnerApp.Infrastructure.Identity;
+namespace RunnerApp.Infrastructure.Identity.Entities;
 
 public class ApplicationUser : IdentityUser<Guid>
 {
     public IdValueObject AccountId { get; set; }
     public virtual Account Account { get; set; }
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
 }

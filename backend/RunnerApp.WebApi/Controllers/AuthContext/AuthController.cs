@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RunnerApp.Application.Services.AuthContext.Inputs;
 using RunnerApp.Application.Services.AuthContext.Interfaces;
 using RunnerApp.WebApi.Controllers.AuthContext.Payloads;
@@ -18,6 +19,7 @@ public class AuthController : ControllerBase
 
     [HttpPost]
     [Route("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> RegisterUserAccountAsync(RegisterUserAccountPayload input, CancellationToken cancellationToken)
     {
         var serviceInput = RegisterUserAccountServiceInput.Factory(
@@ -31,11 +33,12 @@ public class AuthController : ControllerBase
             input: serviceInput, 
             cancellationToken: cancellationToken);
 
-        return CreatedAtRoute("GetAccountById", new { id = result.AccountId }, result);
+        return CreatedAtRoute("GetAccountById", new { accountId = result.AccountId }, result);
     }
 
     [HttpPost]
     [Route("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> LoginUserAccountAsync(LoginUserAccountPayload input, CancellationToken cancellationToken)
     {
         var serviceInput = LoginUserAccountServiceInput.Factory(
@@ -45,6 +48,18 @@ public class AuthController : ControllerBase
         var result = await _authService.LoginUserAccountServiceAsync(
             input: serviceInput, 
             cancellationToken: cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpPost]
+    [Route("refreshToken")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenPayload input, CancellationToken cancellationToken)
+    {
+        var serviceInput = RefreshTokenServiceInput.Factory(
+            refreshToken: input.RefreshToken);
+        var result = await _authService.RefreshTokenServiceAsync(serviceInput, cancellationToken);
 
         return Ok(result);
     }

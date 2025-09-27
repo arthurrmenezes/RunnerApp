@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RunnerApp.Domain.BoundedContexts.AccountContext.Entities;
 using RunnerApp.Domain.BoundedContexts.TrainingContext.Entities;
 using RunnerApp.Infrastructure.Data.Mappings;
-using RunnerApp.Infrastructure.Identity;
+using RunnerApp.Infrastructure.Identity.Entities;
 
 namespace RunnerApp.Infrastructure.Data;
 
@@ -12,6 +12,7 @@ public sealed class DataContext : IdentityDbContext<ApplicationUser, IdentityRol
 {
     public DbSet<Training> Trainings { get; set; }
     public DbSet<Account> Accounts { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public DataContext(DbContextOptions options) : base(options) { }
 
@@ -20,6 +21,7 @@ public sealed class DataContext : IdentityDbContext<ApplicationUser, IdentityRol
         modelBuilder.ApplyConfiguration(new TrainingMapping());
         modelBuilder.ApplyConfiguration(new AccountMapping());
         modelBuilder.ApplyConfiguration(new ApplicationUserMapping());
+        modelBuilder.ApplyConfiguration(new RefreshTokenMapping());
         base.OnModelCreating(modelBuilder);
     }
 }

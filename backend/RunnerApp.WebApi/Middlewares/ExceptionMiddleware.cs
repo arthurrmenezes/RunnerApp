@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace RunnerApp.WebApi.Middlewares;
 
@@ -49,6 +50,7 @@ public class ExceptionMiddleware
             ArgumentException => StatusCodes.Status400BadRequest,
             InvalidOperationException => StatusCodes.Status400BadRequest,
             UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            SecurityTokenException => StatusCodes.Status403Forbidden,
             KeyNotFoundException => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError
         };

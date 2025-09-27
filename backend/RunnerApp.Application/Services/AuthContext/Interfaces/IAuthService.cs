@@ -12,4 +12,8 @@ public interface IAuthService
     public Task<LoginUserAccountServiceOutput> LoginUserAccountServiceAsync(
         LoginUserAccountServiceInput input,
         CancellationToken cancellationToken);
+
+    public Task<RefreshTokenServiceOutput> RefreshTokenServiceAsync(
+        RefreshTokenServiceInput input,
+        CancellationToken cancellationToken);
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RunnerApp.Domain.ValueObjects;
-using RunnerApp.Infrastructure.Identity;
+using RunnerApp.Infrastructure.Identity.Entities;
 
 namespace RunnerApp.Infrastructure.Data.Mappings;
 

@@ -8,7 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using RunnerApp.Infrastructure.Data;
 using RunnerApp.Infrastructure.Data.Repositories;
 using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
-using RunnerApp.Infrastructure.Identity;
+using RunnerApp.Infrastructure.Identity.Entities;
+using RunnerApp.Infrastructure.Identity.Services;
 
 namespace RunnerApp.Infrastructure;
 
@@ -66,6 +67,7 @@ public static class DependencyInjection
                         Encoding.UTF8.GetBytes(configuration["JwtSettings:PrivateKey"]!))
                 };
             });
+
         serviceCollection.AddAuthorization();
 
         serviceCollection.AddScoped<TokenService>();
@@ -76,6 +78,7 @@ public static class DependencyInjection
 
         serviceCollection.AddScoped<ITrainingRepository, TrainingRepository>();
         serviceCollection.AddScoped<IAccountRepository, AccountRepository>();
+        serviceCollection.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         #endregion
 

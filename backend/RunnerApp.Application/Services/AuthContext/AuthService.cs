@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using RunnerApp.Application.Services.AuthContext.Inputs;
 using RunnerApp.Application.Services.AuthContext.Interfaces;
 using RunnerApp.Application.Services.AuthContext.Outputs;
 using RunnerApp.Domain.BoundedContexts.AccountContext.Entities;
-using RunnerApp.Infrastructure.Identity;
+using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
+using RunnerApp.Infrastructure.Identity.Entities;
+using RunnerApp.Infrastructure.Identity.Services;
 
 namespace RunnerApp.Application.Services.AuthContext;
 
@@ -11,12 +14,15 @@ public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly TokenService _tokenService;
 
-    public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, TokenService tokenService)
+    public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IRefreshTokenRepository refreshTokenRepository,
+        TokenService tokenService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _refreshTokenRepository = refreshTokenRepository;
         _tokenService = tokenService;
     }
 
@@ -70,10 +76,51 @@ public class AuthService : IAuthService
         if (!result.Succeeded)
             throw new ArgumentException("Invalid email or password.");
 
-        var token = _tokenService.GenerateToken(user);
+        var accessToken = _tokenService.GenerateToken(user);
+        var (refreshToken, refreshTokenExpirationDate) = _tokenService.GenerateRefreshToken();
+
+        var refreshTokenEntity = RefreshToken.Factory(
+            token: refreshToken,
+            userId: user.Id,
+            user: user,
+            expirationDate: refreshTokenExpirationDate);
+        await _refreshTokenRepository.AddAsync(refreshTokenEntity, cancellationToken);
 
         var output = LoginUserAccountServiceOutput.Factory(
-            accessToken: token);
+            accessToken: accessToken,
+            refreshToken: refreshToken);
+
+        return output;
+    }
+
+    public async Task<RefreshTokenServiceOutput> RefreshTokenServiceAsync(
+        RefreshTokenServiceInput input,
+        CancellationToken cancellationToken)
+    {
+        var currentRefreshToken = await _refreshTokenRepository.GetRefreshTokenByJwtTokenAsync(input.RefreshToken, cancellationToken);
+        if (currentRefreshToken is null || currentRefreshToken.IsExpired() || currentRefreshToken.IsRevoked())
+            throw new ArgumentException("Invalid refresh token");
+
+        var user = currentRefreshToken.User;
+        if (user is null)
+            throw new SecurityTokenException("Invalid refresh token user.");
+
+        await _refreshTokenRepository.RevokeRefreshTokenAsync(currentRefreshToken, cancellationToken);
+
+        var newAccessToken = _tokenService.GenerateToken(user);
+        var (newRefreshToken, newExpirationDate) = _tokenService.GenerateRefreshToken();
+
+        var newRefreshTokenEntity = RefreshToken.Factory(
+            token: newRefreshToken,
+            userId: user.Id,
+            user: user,
+            expirationDate: newExpirationDate);
+
+        await _refreshTokenRepository.AddAsync(newRefreshTokenEntity, cancellationToken);
+
+        var output = RefreshTokenServiceOutput.Factory(
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken);
 
         return output;
     }
