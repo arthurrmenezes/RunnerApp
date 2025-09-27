@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using RunnerApp.Application.Services.AuthContext.Inputs;
 using RunnerApp.Application.Services.AuthContext.Interfaces;
 using RunnerApp.Application.Services.AuthContext.Outputs;
@@ -103,7 +102,7 @@ public class AuthService : IAuthService
 
         var user = currentRefreshToken.User;
         if (user is null)
-            throw new SecurityTokenException("Invalid refresh token user.");
+            throw new ArgumentException("Invalid refresh token user.");
 
         await _refreshTokenRepository.RevokeRefreshTokenAsync(currentRefreshToken, cancellationToken);
 
@@ -123,5 +122,20 @@ public class AuthService : IAuthService
             refreshToken: newRefreshToken);
 
         return output;
+    }
+
+    public async Task LogoutServiceAsync(
+        LogoutServiceInput input, 
+        CancellationToken cancellationToken)
+    {
+        var currentRefreshToken = await _refreshTokenRepository.GetRefreshTokenByJwtTokenAsync(input.RefreshToken, cancellationToken);
+        if (currentRefreshToken is null || currentRefreshToken.IsExpired() || currentRefreshToken.IsRevoked())
+            throw new ArgumentException("Invalid refresh token");
+
+        var user = currentRefreshToken.User;
+        if (user is null)
+            throw new ArgumentException("Invalid refresh token user.");
+
+        await _refreshTokenRepository.RevokeAllTokensByUserIdAsync(user.Id, cancellationToken);
     }
 }

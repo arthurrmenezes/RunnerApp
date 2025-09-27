@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RunnerApp.Domain.ValueObjects;
 using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
 using RunnerApp.Infrastructure.Identity.Entities;
 
@@ -29,6 +30,20 @@ public class RefreshTokenRepository : IRefreshTokenRepository
     public async Task RevokeRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
     {
         refreshToken.Revoke();
+        await _dataContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RevokeAllTokensByUserIdAsync(IdValueObject userId, CancellationToken cancellationToken)
+    {
+        var tokens = await _dataContext.RefreshTokens
+            .Where(rt => rt.UserId == userId 
+                && rt.RevokedAt == null
+                && rt.ExpirationDate > DateTime.UtcNow)
+            .ToListAsync(cancellationToken);
+
+        foreach (var token in tokens)
+            token.Revoke();
+
         await _dataContext.SaveChangesAsync(cancellationToken);
     }
 }

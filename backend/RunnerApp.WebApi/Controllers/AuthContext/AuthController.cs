@@ -63,4 +63,15 @@ public class AuthController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPost]
+    [Route("logout")]
+    [Authorize]
+    public async Task<IActionResult> LogoutAsync([FromBody] LogoutPayload input, CancellationToken cancellationToken)
+    {
+        var serviceInput = LogoutServiceInput.Factory(
+            refreshToken: input.RefreshToken);
+        await _authService.LogoutServiceAsync(serviceInput, cancellationToken);
+        return NoContent();
+    }
 }
