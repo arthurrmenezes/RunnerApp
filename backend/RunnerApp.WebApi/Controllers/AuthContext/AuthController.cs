@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using RunnerApp.Application.Services.AuthContext.Inputs;
 using RunnerApp.Application.Services.AuthContext.Interfaces;
 using RunnerApp.WebApi.Controllers.AuthContext.Payloads;
@@ -8,6 +9,7 @@ namespace RunnerApp.WebApi.Controllers.AuthContext;
 
 [ApiController]
 [Route("api/v1/auth")]
+[EnableRateLimiting("auth")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;

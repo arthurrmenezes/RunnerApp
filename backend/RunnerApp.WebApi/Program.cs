@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using RunnerApp.Application;
 using RunnerApp.Infrastructure;
 using RunnerApp.WebApi.Middlewares;
@@ -25,6 +27,29 @@ public class Program
 
         #endregion
 
+        #region Rate Limiting Configuration
+
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.AddFixedWindowLimiter("auth", config =>
+            {
+                config.PermitLimit = 10;
+                config.Window = TimeSpan.FromMinutes(1);
+            });
+
+            options.AddFixedWindowLimiter("fixed", config =>
+            {
+                config.PermitLimit = 100;
+                config.Window = TimeSpan.FromMinutes(1);
+                config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                config.QueueLimit = 5;
+            });
+
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        });
+
+        #endregion
+
         builder.Services
             .AddControllers()
             .AddJsonOptions(options =>
@@ -40,6 +65,7 @@ public class Program
 
         app.UseMiddleware<ExceptionMiddleware>();
 
+        app.UseRateLimiter();
         app.UseHttpsRedirection();
 
         if (app.Environment.IsDevelopment())
