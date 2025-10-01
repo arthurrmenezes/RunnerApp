@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using RunnerApp.Application.Services.AuthContext.Inputs;
@@ -55,8 +56,8 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
-    [Route("refreshToken")]
-    [AllowAnonymous]
+    [Route("refresh-token")]
+    [Authorize]
     public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenPayload input, CancellationToken cancellationToken)
     {
         var serviceInput = RefreshTokenServiceInput.Factory(
@@ -69,11 +70,40 @@ public class AuthController : ControllerBase
     [HttpPost]
     [Route("logout")]
     [Authorize]
-    public async Task<IActionResult> LogoutAsync([FromBody] LogoutPayload input, CancellationToken cancellationToken)
+    public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
     {
-        var serviceInput = LogoutServiceInput.Factory(
-            refreshToken: input.RefreshToken);
-        await _authService.LogoutServiceAsync(serviceInput, cancellationToken);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        await _authService.LogoutServiceAsync(
+            userId: userId,
+            cancellationToken: cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost]
+    [Route("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePasswordAsync(ChangePasswordPayload input, CancellationToken cancellationToken)
+    {
+        if (input.NewPassword != input.ConfirmNewPassword)
+            throw new ArgumentException("The new password and confirmation password do not match.");
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User identifier could not be found in the token.");
+
+        var serviceInput = ChangePasswordInput.Factory(
+            userId: userId,
+            currentPassword: input.CurrentPassword,
+            newPassword: input.NewPassword);
+
+        var result = await _authService.ChangePasswordAsync(serviceInput, cancellationToken);
+
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
         return NoContent();
     }
 }

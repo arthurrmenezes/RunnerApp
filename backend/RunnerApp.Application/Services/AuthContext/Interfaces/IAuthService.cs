@@ -1,4 +1,5 @@
-﻿using RunnerApp.Application.Services.AuthContext.Inputs;
+﻿using Microsoft.AspNetCore.Identity;
+using RunnerApp.Application.Services.AuthContext.Inputs;
 using RunnerApp.Application.Services.AuthContext.Outputs;
 
 namespace RunnerApp.Application.Services.AuthContext.Interfaces;
@@ -18,6 +19,10 @@ public interface IAuthService
         CancellationToken cancellationToken);
 
     public Task LogoutServiceAsync(
-        LogoutServiceInput input,
+        string userId,
+        CancellationToken cancellationToken);
+
+    public Task<IdentityResult> ChangePasswordAsync(
+        ChangePasswordInput input,
         CancellationToken cancellationToken);
 }

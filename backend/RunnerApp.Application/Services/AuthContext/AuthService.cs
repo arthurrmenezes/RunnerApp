@@ -125,17 +125,26 @@ public class AuthService : IAuthService
     }
 
     public async Task LogoutServiceAsync(
-        LogoutServiceInput input, 
+        string userId,
         CancellationToken cancellationToken)
     {
-        var currentRefreshToken = await _refreshTokenRepository.GetRefreshTokenByJwtTokenAsync(input.RefreshToken, cancellationToken);
-        if (currentRefreshToken is null || currentRefreshToken.IsExpired() || currentRefreshToken.IsRevoked())
-            throw new ArgumentException("Invalid refresh token");
+        var userGuid = Guid.Parse(userId);
 
-        var user = currentRefreshToken.User;
+        await _refreshTokenRepository.RevokeAllTokensByUserIdAsync(userGuid, cancellationToken);
+    }
+
+    public async Task<IdentityResult> ChangePasswordAsync(ChangePasswordInput input, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(input.UserId);
         if (user is null)
-            throw new ArgumentException("Invalid refresh token user.");
+            return IdentityResult.Failed(new IdentityError
+            {
+                Code = "UserNotFound",
+                Description = "User not found."
+            });
 
-        await _refreshTokenRepository.RevokeAllTokensByUserIdAsync(user.Id, cancellationToken);
+        var result = await _userManager.ChangePasswordAsync(user, input.CurrentPassword, input.NewPassword);
+
+        return result;
     }
 }
