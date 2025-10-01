@@ -30,4 +30,16 @@ public class Account
 
     public static Account Factory(FirstNameValueObject firstName, SurnameValueObject surname, EmailValueObject email)
         => new Account(firstName, surname, email);
+
+    public void UpdateAccountDetails(string? firstName, string? surname, string? email)
+    {
+        if (firstName is not null)
+            FirstName = firstName;
+
+        if (surname is not null)
+            Surname = surname;
+
+        if (email is not null)
+            Email = email;
+    }
 }

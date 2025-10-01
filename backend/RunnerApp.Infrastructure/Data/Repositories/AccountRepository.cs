@@ -14,19 +14,13 @@ public class AccountRepository : IAccountRepository
         _dataContext = dataContext;
     }
 
-    public async Task CreateAccountAsync(Account account, CancellationToken cancellationToken)
+    public async Task<Account?> GetAccountByIdAsync(IdValueObject accountId, CancellationToken cancellationToken)
     {
-        await _dataContext.Accounts.AddAsync(account, cancellationToken);
+        return await _dataContext.Accounts.FirstOrDefaultAsync(a => a.Id.Equals(accountId), cancellationToken);
+    }
+
+    public async Task UpdateAccountByIdAsync(Account account, CancellationToken cancellationToken)
+    {
         await _dataContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<bool> IsEmailExistsAsync(EmailValueObject email, CancellationToken cancellationToken)
-    {
-        return await _dataContext.Accounts.AnyAsync(a => a.Email.Equals(email), cancellationToken);
-    }
-
-    public async Task<Account?> GetAccountById(IdValueObject id, CancellationToken cancellationToken)
-    {
-        return await _dataContext.Accounts.FirstOrDefaultAsync(a => a.Id.Equals(id), cancellationToken);
     }
 }

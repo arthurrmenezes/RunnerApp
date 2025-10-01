@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using RunnerApp.Application.Services.TrainingContext.Inputs;
 using RunnerApp.Application.Services.TrainingContext.Interfaces;
 using RunnerApp.Domain.ValueObjects;
-using RunnerApp.Infrastructure.Identity;
+using RunnerApp.Infrastructure.Identity.Entities;
 using RunnerApp.WebApi.Controllers.TrainingContext.Payloads;
 
 namespace RunnerApp.WebApi.Controllers.TrainingContext;

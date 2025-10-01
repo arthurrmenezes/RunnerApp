@@ -23,7 +23,7 @@ public class TrainingService : ITrainingService
         CreateTrainingServiceInput input,
         CancellationToken cancellationToken)
     {
-        var account = await _accountRepository.GetAccountById(input.AccountId, cancellationToken);
+        var account = await _accountRepository.GetAccountByIdAsync(input.AccountId, cancellationToken);
         if (account is null)
             throw new KeyNotFoundException($"No account with ID {input.AccountId} was found.");
 
@@ -95,7 +95,7 @@ public class TrainingService : ITrainingService
 
         await _trainingRepository.UpdateTrainingAsync(training, cancellationToken);
 
-        var account = await _accountRepository.GetAccountById(accountId, cancellationToken);
+        var account = await _accountRepository.GetAccountByIdAsync(accountId, cancellationToken);
         if (account is null)
             throw new KeyNotFoundException($"No account with ID {accountId} was found.");
 
