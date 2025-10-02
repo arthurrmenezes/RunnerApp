@@ -17,7 +17,6 @@ public class TrainingRepository : ITrainingRepository
     public async Task CreateTrainingAsync(Training training, CancellationToken cancellationToken)
     {
         await _dataContext.Trainings.AddAsync(training, cancellationToken);
-        await _dataContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<Training?> GetTrainingByIdAsync(IdValueObject id, CancellationToken cancellationToken)
@@ -25,15 +24,9 @@ public class TrainingRepository : ITrainingRepository
         return await _dataContext.Trainings.FirstOrDefaultAsync(t => t.Id.Equals(id));
     }
 
-    public async Task UpdateTrainingAsync(Training training, CancellationToken cancellationToken)
-    {
-        await _dataContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task DeleteTrainingAsync(Training training, CancellationToken cancellationToken)
+    public void DeleteTraining(Training training, CancellationToken cancellationToken)
     {
         _dataContext.Trainings.Remove(training);
-        await _dataContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<Training[]> GetAllTrainingsByAccountIdAsync(IdValueObject accountId, CancellationToken cancellationToken)

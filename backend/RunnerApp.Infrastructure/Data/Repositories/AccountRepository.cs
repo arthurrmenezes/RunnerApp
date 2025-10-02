@@ -18,9 +18,4 @@ public class AccountRepository : IAccountRepository
     {
         return await _dataContext.Accounts.FirstOrDefaultAsync(a => a.Id.Equals(accountId), cancellationToken);
     }
-
-    public async Task UpdateAccountByIdAsync(Account account, CancellationToken cancellationToken)
-    {
-        await _dataContext.SaveChangesAsync(cancellationToken);
-    }
 }

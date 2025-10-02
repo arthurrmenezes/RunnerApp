@@ -17,7 +17,6 @@ public class RefreshTokenRepository : IRefreshTokenRepository
     public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
     {
         await _dataContext.RefreshTokens.AddAsync(refreshToken, cancellationToken);
-        await _dataContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<RefreshToken?> GetRefreshTokenByJwtTokenAsync(string token, CancellationToken cancellationToken)
@@ -27,10 +26,9 @@ public class RefreshTokenRepository : IRefreshTokenRepository
             .FirstOrDefaultAsync(rt => rt.Token == token, cancellationToken);
     }
 
-    public async Task RevokeRefreshTokenAsync(RefreshToken refreshToken, CancellationToken cancellationToken)
+    public void RevokeRefreshToken(RefreshToken refreshToken, CancellationToken cancellationToken)
     {
         refreshToken.Revoke();
-        await _dataContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task RevokeAllTokensByUserIdAsync(IdValueObject userId, CancellationToken cancellationToken)
@@ -43,7 +41,5 @@ public class RefreshTokenRepository : IRefreshTokenRepository
 
         foreach (var token in tokens)
             token.Revoke();
-
-        await _dataContext.SaveChangesAsync(cancellationToken);
     }
 }

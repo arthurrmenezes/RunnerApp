@@ -9,9 +9,7 @@ public interface ITrainingRepository
 
     public Task<Training?> GetTrainingByIdAsync(IdValueObject id, CancellationToken cancellationToken);
 
-    public Task UpdateTrainingAsync(Training training, CancellationToken cancellationToken);
-
-    public Task DeleteTrainingAsync(Training training, CancellationToken cancellationToken);
+    public void DeleteTraining(Training training, CancellationToken cancellationToken);
 
     public Task<Training[]> GetAllTrainingsByAccountIdAsync(IdValueObject accountId, CancellationToken cancellationToken);
 }

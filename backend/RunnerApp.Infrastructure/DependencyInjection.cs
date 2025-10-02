@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using RunnerApp.Infrastructure.Data;
 using RunnerApp.Infrastructure.Data.Repositories;
 using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
+using RunnerApp.Infrastructure.Data.UnitOfWork;
+using RunnerApp.Infrastructure.Data.UnitOfWork.Interfaces;
 using RunnerApp.Infrastructure.Identity.Entities;
 using RunnerApp.Infrastructure.Identity.Services;
 
@@ -79,6 +81,12 @@ public static class DependencyInjection
         serviceCollection.AddScoped<ITrainingRepository, TrainingRepository>();
         serviceCollection.AddScoped<IAccountRepository, AccountRepository>();
         serviceCollection.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        #endregion
+
+        #region Unit Of Work Configuration
+
+        serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
 
         #endregion
 
