@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
     [HttpPost]
     [Route("register")]
     [AllowAnonymous]
-    public async Task<IActionResult> RegisterUserAccountAsync(RegisterUserAccountPayload input, CancellationToken cancellationToken)
+    public async Task<IActionResult> RegisterUserAccountAsync([FromBody] RegisterUserAccountPayload input, CancellationToken cancellationToken)
     {
         var serviceInput = RegisterUserAccountServiceInput.Factory(
             firstName: input.FirstName,
@@ -32,23 +32,23 @@ public class AuthController : ControllerBase
             password: input.Password,
             rePassword: input.RePassword);
 
-        var result = await _authService.RegisterUserAccountServiceAsync(
+        var result = await _authService.RegisterServiceAsync(
             input: serviceInput, 
             cancellationToken: cancellationToken);
 
-        return CreatedAtRoute("GetAccountById", new { accountId = result.AccountId }, result);
+        return CreatedAtRoute("GetUserAccountDetails", new { accountId = result.AccountId }, result);
     }
 
     [HttpPost]
     [Route("login")]
     [AllowAnonymous]
-    public async Task<IActionResult> LoginUserAccountAsync(LoginUserAccountPayload input, CancellationToken cancellationToken)
+    public async Task<IActionResult> LoginUserAccountAsync([FromBody] LoginUserAccountPayload input, CancellationToken cancellationToken)
     {
         var serviceInput = LoginUserAccountServiceInput.Factory(
             email: input.Email,
             password: input.Password);
         
-        var result = await _authService.LoginUserAccountServiceAsync(
+        var result = await _authService.LoginServiceAsync(
             input: serviceInput, 
             cancellationToken: cancellationToken);
 
@@ -87,6 +87,9 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> ChangePasswordAsync(ChangePasswordPayload input, CancellationToken cancellationToken)
     {
+        if (input.CurrentPassword == input.NewPassword)
+            throw new ArgumentException("The new password must be different from the last 5 passwords.");
+
         if (input.NewPassword != input.ConfirmNewPassword)
             throw new ArgumentException("The new password and confirmation password do not match.");
 
