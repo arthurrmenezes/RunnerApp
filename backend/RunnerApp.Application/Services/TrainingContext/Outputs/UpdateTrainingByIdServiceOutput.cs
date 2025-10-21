@@ -24,7 +24,7 @@ public readonly struct UpdateTrainingByIdServiceOutput
     }
 
     public static UpdateTrainingByIdServiceOutput Factory(string id, LocationType location, double distance, TimeSpan duration, DateTime date, DateTime createdAt, UpdateTrainingByIdServiceOutputAccountOutput account)
-        => new UpdateTrainingByIdServiceOutput(id, location, distance, duration, date, createdAt,account);
+        => new UpdateTrainingByIdServiceOutput(id, location, distance, duration, date, createdAt, account);
 }
 
 public sealed record UpdateTrainingByIdServiceOutputAccountOutput

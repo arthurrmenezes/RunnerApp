@@ -2,19 +2,27 @@
 
 namespace RunnerApp.Application.Services.AccountContext.Outputs;
 
-public readonly struct GetAllTrainingsByAccountIdServiceOutput
+public readonly struct GetAllTrainingsForCurrentUserServiceOutput
 {
     public int TotalTrainings { get; }
+    public int PageNumber { get; }
+    public int PageSize { get; }
+    public int TotalPages { get; }
     public GetAllTrainingsByAccountIdServiceOutputTrainingOutput[] Trainings { get; }
 
-    private GetAllTrainingsByAccountIdServiceOutput(int totalTrainings, GetAllTrainingsByAccountIdServiceOutputTrainingOutput[] trainings)
+    private GetAllTrainingsForCurrentUserServiceOutput(int totalTrainings, int pageNumber, int pageSize, int totalPages,
+        GetAllTrainingsByAccountIdServiceOutputTrainingOutput[] trainings)
     {
         TotalTrainings = totalTrainings;
+        PageNumber = pageNumber;
+        PageSize = pageSize;
+        TotalPages = totalPages;
         Trainings = trainings;
     }
 
-    public static GetAllTrainingsByAccountIdServiceOutput Factory(int totalTrainings, GetAllTrainingsByAccountIdServiceOutputTrainingOutput[] trainings)
-        => new GetAllTrainingsByAccountIdServiceOutput(totalTrainings, trainings);
+    public static GetAllTrainingsForCurrentUserServiceOutput Factory(int totalTrainings, int pageNumber, int pageSize, int totalPages,
+        GetAllTrainingsByAccountIdServiceOutputTrainingOutput[] trainings)
+        => new GetAllTrainingsForCurrentUserServiceOutput(totalTrainings, pageNumber, pageSize, totalPages, trainings);
 }
 
 public sealed record GetAllTrainingsByAccountIdServiceOutputTrainingOutput

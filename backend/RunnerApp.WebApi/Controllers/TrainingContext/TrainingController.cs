@@ -1,17 +1,19 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using RunnerApp.Application.Services.TrainingContext.Inputs;
 using RunnerApp.Application.Services.TrainingContext.Interfaces;
 using RunnerApp.Domain.ValueObjects;
 using RunnerApp.Infrastructure.Identity.Entities;
 using RunnerApp.WebApi.Controllers.TrainingContext.Payloads;
+using System.Security.Claims;
 
 namespace RunnerApp.WebApi.Controllers.TrainingContext;
 
 [ApiController]
 [Route("api/v1/training")]
+[EnableRateLimiting("fixed")]
 public class TrainingController : ControllerBase
 {
     private readonly ITrainingService _trainingService;
@@ -83,6 +85,12 @@ public class TrainingController : ControllerBase
         [FromBody] UpdateTrainingByIdPayload input,
         CancellationToken cancellationToken)
     {
+        if (input.Location is null &&
+            input.Distance is null &&
+            input.Duration is null &&
+            input.Date is null)
+            throw new ArgumentException("At least one field must be provided for the update.");
+
         if (!Guid.TryParse(trainingId, out var guid))
             throw new ArgumentException("The provided ID is not a valid GUID.");
 
@@ -134,14 +142,17 @@ public class TrainingController : ControllerBase
     }
 
     [HttpGet]
-    [Route("account/{accountId}/trainings")]
+    [Route("me/trainings")]
     [Authorize]
-    public async Task<IActionResult> GetAllTrainingsByAccountIdAsync(
-        [FromRoute] string accountId,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllTrainingsForCurrentUserAsync(
+        CancellationToken cancellationToken,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
-        if (!Guid.TryParse(accountId, out var guid))
-            throw new ArgumentException("The provided ID is not a valid GUID.");
+        if (pageNumber < 1) pageNumber = 1;
+
+        if (pageSize < 1 || pageSize > 50)
+            throw new ArgumentException("Page size must be between 1 and 50.");
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
@@ -151,10 +162,12 @@ public class TrainingController : ControllerBase
         if (applicationUser is null)
             throw new ArgumentException("User not found.");
 
-        var trainings = await _trainingService.GetAllTrainingsByAccountIdServiceAsync(
-            accountId: IdValueObject.Factory(guid),
-            callerAccountId: applicationUser.AccountId,
+        var trainings = await _trainingService.GetAllTrainingsForCurrentUserServiceAsync(
+            accountId: IdValueObject.Factory(applicationUser.AccountId),
+            pageNumber: pageNumber,
+            pageSize: pageSize,
             cancellationToken: cancellationToken);
+
         return Ok(trainings);
     }
 }

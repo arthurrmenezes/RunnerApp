@@ -5,6 +5,7 @@ using RunnerApp.Application.Services.TrainingContext.Outputs;
 using RunnerApp.Domain.BoundedContexts.TrainingContext.Entities;
 using RunnerApp.Domain.ValueObjects;
 using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
+using RunnerApp.Infrastructure.Data.UnitOfWork.Interfaces;
 
 namespace RunnerApp.Application.Services.TrainingContext;
 
@@ -12,11 +13,13 @@ public class TrainingService : ITrainingService
 {
     private readonly ITrainingRepository _trainingRepository;
     private readonly IAccountRepository _accountRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public TrainingService(ITrainingRepository trainingRepository, IAccountRepository accountRepository)
+    public TrainingService(ITrainingRepository trainingRepository, IAccountRepository accountRepository, IUnitOfWork unitOfWork)
     {
         _trainingRepository = trainingRepository;
         _accountRepository = accountRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<CreateTrainingServiceOutput> CreateTrainingServiceAsync(
@@ -35,6 +38,8 @@ public class TrainingService : ITrainingService
             accountId: input.AccountId);
 
         await _trainingRepository.CreateTrainingAsync(training, cancellationToken);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return CreateTrainingServiceOutput.Factory(
             trainingId: training.Id.ToString(),
@@ -74,12 +79,6 @@ public class TrainingService : ITrainingService
         UpdateTrainingByIdServiceInput input, 
         CancellationToken cancellationToken)
     {
-        if (input.Location is null &&
-            input.Distance is null &&
-            input.Duration is null &&
-            input.Date is null)
-            throw new ArgumentException("At least one field must be provided for the update.");
-
         var training = await _trainingRepository.GetTrainingByIdAsync(trainingId, cancellationToken);
         if (training is null)
             throw new KeyNotFoundException($"No training with ID {trainingId} was found.");
@@ -93,7 +92,7 @@ public class TrainingService : ITrainingService
             duration: input.Duration,
             date: input.Date);
 
-        await _trainingRepository.UpdateTrainingAsync(training, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var account = await _accountRepository.GetAccountByIdAsync(accountId, cancellationToken);
         if (account is null)
@@ -126,20 +125,20 @@ public class TrainingService : ITrainingService
         if (training.AccountId.ToString() != accountId.ToString())
             throw new UnauthorizedAccessException("You cannot delete a training that does not belong to your account.");
 
-        await _trainingRepository.DeleteTrainingAsync(training, cancellationToken);
+        _trainingRepository.DeleteTraining(training);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-	public async Task<GetAllTrainingsByAccountIdServiceOutput> GetAllTrainingsByAccountIdServiceAsync(
+	public async Task<GetAllTrainingsForCurrentUserServiceOutput> GetAllTrainingsForCurrentUserServiceAsync(
         IdValueObject accountId,
-        IdValueObject callerAccountId,
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken)
 	{
-        if (accountId.ToString() != callerAccountId.ToString())
-            throw new UnauthorizedAccessException("You are not allowed to view trainings of other accounts.");
+        var trainings = await _trainingRepository.GetAllTrainingsByAccountIdAsync(accountId, pageNumber, pageSize, cancellationToken);
 
-        var trainings = await _trainingRepository.GetAllTrainingsByAccountIdAsync(accountId, cancellationToken);
-
-        var output = trainings.Select(training => new GetAllTrainingsByAccountIdServiceOutputTrainingOutput(
+        var trainingOutput = trainings.Select(training => new GetAllTrainingsByAccountIdServiceOutputTrainingOutput(
 			id: training.Id.ToString(),
 			location: training.Location,
 			distance: training.Distance,
@@ -147,10 +146,16 @@ public class TrainingService : ITrainingService
 			date: training.Date,
 			createdAt: training.CreatedAt)).ToArray();
 
-        var totalTrainingsOutput = output.Length;
+        var totalTrainingsCount = await _trainingRepository.GetTotalTrainingsCountByAccountIdAsync(accountId, cancellationToken);
+        var totalPagesOutput = (int)Math.Ceiling((double)totalTrainingsCount / pageSize);
+        if (totalPagesOutput == 0)
+            totalPagesOutput = 1;
 
-		return GetAllTrainingsByAccountIdServiceOutput.Factory(
-			totalTrainings: totalTrainingsOutput,
-			trainings: output);
+        return GetAllTrainingsForCurrentUserServiceOutput.Factory(
+			totalTrainings: totalTrainingsCount,
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            totalPages: totalPagesOutput,
+            trainings: trainingOutput);
 	}
 }

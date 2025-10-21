@@ -27,8 +27,9 @@ public interface ITrainingService
         IdValueObject accountId,
         CancellationToken cancellationToken);
 
-    public Task<GetAllTrainingsByAccountIdServiceOutput> GetAllTrainingsByAccountIdServiceAsync(
+    public Task<GetAllTrainingsForCurrentUserServiceOutput> GetAllTrainingsForCurrentUserServiceAsync(
         IdValueObject accountId,
-        IdValueObject callerAccountId,
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken);
 }
