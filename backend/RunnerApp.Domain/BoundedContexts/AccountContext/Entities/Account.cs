@@ -33,13 +33,13 @@ public class Account
 
     public void UpdateAccountDetails(string? firstName, string? surname, string? email)
     {
-        if (firstName is not null)
-            FirstName = firstName;
+        if (!string.IsNullOrEmpty(firstName))
+            FirstName = FirstNameValueObject.Factory(firstName);
 
-        if (surname is not null)
-            Surname = surname;
+        if (!string.IsNullOrEmpty(surname))
+            Surname = SurnameValueObject.Factory(surname);
 
-        if (email is not null)
-            Email = email;
+        if (!string.IsNullOrEmpty(email))
+            Email = EmailValueObject.Factory(email);
     }
 }

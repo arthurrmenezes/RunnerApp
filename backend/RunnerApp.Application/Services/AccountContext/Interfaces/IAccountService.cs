@@ -6,14 +6,12 @@ namespace RunnerApp.Application.Services.AccountContext.Interfaces;
 
 public interface IAccountService
 {
-    public Task<GetAccountByIdServiceOutput> GetAccountByIdServiceAsync(
+    public Task<GetUserAccountDetailsServiceOutput> GetUserAccountDetailsServiceAsync(
         IdValueObject accountId,
-        IdValueObject callerAccountId,
         CancellationToken cancellationToken);
 
-    public Task<UpdateAccountByIdServiceOutput> UpdateAccountByIdServiceAsync(
+    public Task<UpdateAccountServiceOutput> UpdateAccountServiceAsync(
         IdValueObject accountId,
-        IdValueObject callerAccountId,
-        UpdateAccountByIdServiceInput input,
+        UpdateAccountServiceInput input,
         CancellationToken cancellationToken);
 }

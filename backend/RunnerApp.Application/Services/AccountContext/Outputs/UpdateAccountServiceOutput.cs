@@ -1,6 +1,6 @@
 ﻿namespace RunnerApp.Application.Services.AccountContext.Outputs;
 
-public readonly struct UpdateAccountByIdServiceOutput
+public readonly struct UpdateAccountServiceOutput
 {
     public string Id { get; }
     public string FirstName { get; }
@@ -8,7 +8,7 @@ public readonly struct UpdateAccountByIdServiceOutput
     public string Email { get; }
     public DateTime CreatedAt { get; }
 
-    private UpdateAccountByIdServiceOutput(string id, string firstName, string surname, string email, 
+    private UpdateAccountServiceOutput(string id, string firstName, string surname, string email, 
         DateTime createdAt)
     {
         Id = id;
@@ -18,7 +18,7 @@ public readonly struct UpdateAccountByIdServiceOutput
         CreatedAt = createdAt;
     }
 
-    public static UpdateAccountByIdServiceOutput Factory(string id, string firstName, string surname, string email, 
+    public static UpdateAccountServiceOutput Factory(string id, string firstName, string surname, string email, 
         DateTime createdAt)
-        => new UpdateAccountByIdServiceOutput(id, firstName, surname, email, createdAt);
+        => new UpdateAccountServiceOutput(id, firstName, surname, email, createdAt);
 }

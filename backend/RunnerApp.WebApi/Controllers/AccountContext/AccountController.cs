@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using RunnerApp.Application.Services.AccountContext.Inputs;
 using RunnerApp.Application.Services.AccountContext.Interfaces;
 using RunnerApp.Domain.ValueObjects;
@@ -12,6 +13,7 @@ namespace RunnerApp.WebApi.Controllers.AccountContext;
 
 [ApiController]
 [Route("api/v1/account")]
+[EnableRateLimiting("fixed")]
 public class AccountController : ControllerBase
 {
     private readonly IAccountService _accountService;
@@ -23,40 +25,36 @@ public class AccountController : ControllerBase
         _userManager = userManager;
     }
 
-    [HttpGet("{accountId}", Name = "GetAccountById")]
+    [HttpGet("me", Name = "GetUserAccountDetails")]
     [Authorize]
-    public async Task<IActionResult> GetAccountByIdAsync(
-        [FromRoute] string accountId,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetUserAccountDetailsAsync(CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(accountId, out var guid))
-            throw new ArgumentException("The provided ID is not a valid GUID.");
-
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
-            throw new ArgumentException("Invalid token: user identifier is missing.");
+            throw new ArgumentException("User identifier could not be found in the token.");
 
         var applicationUser = await _userManager.FindByIdAsync(userId);
         if (applicationUser is null)
             throw new ArgumentException("User not found.");
 
-        var account = await _accountService.GetAccountByIdServiceAsync(
-            accountId: IdValueObject.Factory(guid),
-            callerAccountId: applicationUser.AccountId,
+        var account = await _accountService.GetUserAccountDetailsServiceAsync(
+            accountId: IdValueObject.Factory(applicationUser.AccountId),
             cancellationToken: cancellationToken);
+
         return Ok(account);
     }
 
     [HttpPatch]
-    [Route("{accountId}")]
+    [Route("me")]
     [Authorize]
     public async Task<IActionResult> UpdateAccountAsync(
-        [FromRoute] string accountId,
         [FromBody] UpdateAccountPayload input,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(accountId, out var guid))
-            throw new ArgumentException("The provided ID is not a valid GUID.");
+        if (input.FirstName is null &&
+            input.Surname is null &&
+            input.Email is null)
+            throw new ArgumentException("At least one field must be provided for the update.");
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
@@ -66,10 +64,9 @@ public class AccountController : ControllerBase
         if (applicationUser is null)
             throw new ArgumentException("User not found.");
 
-        var account = await _accountService.UpdateAccountByIdServiceAsync(
-            accountId: IdValueObject.Factory(guid),
-            callerAccountId: applicationUser.AccountId,
-            input: UpdateAccountByIdServiceInput.Factory(
+        var account = await _accountService.UpdateAccountServiceAsync(
+            accountId: IdValueObject.Factory(applicationUser.AccountId),
+            input: UpdateAccountServiceInput.Factory(
                 firstName: input.FirstName,
                 surname: input.Surname,
                 email: input.Email),

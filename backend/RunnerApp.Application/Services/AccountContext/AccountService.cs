@@ -3,31 +3,30 @@ using RunnerApp.Application.Services.AccountContext.Interfaces;
 using RunnerApp.Application.Services.AccountContext.Outputs;
 using RunnerApp.Domain.ValueObjects;
 using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
+using RunnerApp.Infrastructure.Data.UnitOfWork.Interfaces;
 
 namespace RunnerApp.Application.Services.AccountContext;
 
 public class AccountService : IAccountService
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AccountService(IAccountRepository accountRepository)
+    public AccountService(IAccountRepository accountRepository, IUnitOfWork unitOfWork)
     {
         _accountRepository = accountRepository;
+        _unitOfWork = unitOfWork;
     }
 
-    public async Task<GetAccountByIdServiceOutput> GetAccountByIdServiceAsync(
+    public async Task<GetUserAccountDetailsServiceOutput> GetUserAccountDetailsServiceAsync(
         IdValueObject accountId,
-        IdValueObject callerAccountId,
         CancellationToken cancellationToken)
     {
-        if (accountId.ToString() != callerAccountId.ToString())
-            throw new UnauthorizedAccessException("You are not allowed to view these account details.");
-
         var account = await _accountRepository.GetAccountByIdAsync(accountId, cancellationToken);
         if (account is null)
             throw new KeyNotFoundException($"Account with ID {accountId} not found.");
 
-        var output = GetAccountByIdServiceOutput.Factory(
+        var output = GetUserAccountDetailsServiceOutput.Factory(
             id: account.Id.ToString(),
             firstName: account.FirstName,
             surname: account.Surname,
@@ -37,20 +36,11 @@ public class AccountService : IAccountService
         return output;
     }
 
-    public async Task<UpdateAccountByIdServiceOutput> UpdateAccountByIdServiceAsync(
+    public async Task<UpdateAccountServiceOutput> UpdateAccountServiceAsync(
         IdValueObject accountId,
-        IdValueObject callerAccountId,
-        UpdateAccountByIdServiceInput input, 
+        UpdateAccountServiceInput input, 
         CancellationToken cancellationToken)
     {
-        if (input.FirstName is null &&
-            input.Surname is null &&
-            input.Email is null)
-            throw new ArgumentException("At least one field must be provided for the update.");
-
-        if (accountId.ToString() != callerAccountId.ToString())
-            throw new UnauthorizedAccessException("You are not allowed to view these account details.");
-
         var account = await _accountRepository.GetAccountByIdAsync(accountId, cancellationToken);
         if (account is null)
             throw new KeyNotFoundException($"Account with ID {accountId} was not found.");
@@ -60,9 +50,9 @@ public class AccountService : IAccountService
             surname: input.Surname,
             email: input.Email);
 
-        await _accountRepository.UpdateAccountByIdAsync(account, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var output = UpdateAccountByIdServiceOutput.Factory(
+        var output = UpdateAccountServiceOutput.Factory(
             id: account.Id.ToString(),
             firstName: account.FirstName,
             surname: account.Surname,
