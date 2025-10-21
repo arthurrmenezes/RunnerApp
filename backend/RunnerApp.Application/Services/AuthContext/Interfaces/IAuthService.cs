@@ -6,11 +6,11 @@ namespace RunnerApp.Application.Services.AuthContext.Interfaces;
 
 public interface IAuthService
 {
-    public Task<RegisterUserAccountServiceOutput> RegisterUserAccountServiceAsync(
+    public Task<RegisterUserAccountServiceOutput> RegisterServiceAsync(
         RegisterUserAccountServiceInput input,
         CancellationToken cancellationToken);
 
-    public Task<LoginUserAccountServiceOutput> LoginUserAccountServiceAsync(
+    public Task<LoginUserAccountServiceOutput> LoginServiceAsync(
         LoginUserAccountServiceInput input,
         CancellationToken cancellationToken);
 

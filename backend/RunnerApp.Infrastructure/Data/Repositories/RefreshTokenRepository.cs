@@ -26,7 +26,7 @@ public class RefreshTokenRepository : IRefreshTokenRepository
             .FirstOrDefaultAsync(rt => rt.Token == token, cancellationToken);
     }
 
-    public void RevokeRefreshToken(RefreshToken refreshToken, CancellationToken cancellationToken)
+    public void RevokeRefreshToken(RefreshToken refreshToken)
     {
         refreshToken.Revoke();
     }

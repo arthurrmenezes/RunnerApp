@@ -9,7 +9,7 @@ public interface IRefreshTokenRepository
 
     public Task<RefreshToken?> GetRefreshTokenByJwtTokenAsync(string token, CancellationToken cancellationToken);
 
-    public void RevokeRefreshToken(RefreshToken refreshToken, CancellationToken cancellationToken);
+    public void RevokeRefreshToken(RefreshToken refreshToken);
 
     public Task RevokeAllTokensByUserIdAsync(IdValueObject userId, CancellationToken cancellationToken);
 }
