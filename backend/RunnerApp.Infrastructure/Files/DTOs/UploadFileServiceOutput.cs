@@ -1,4 +1,4 @@
-﻿namespace RunnerApp.Infrastructure.Files.Outputs;
+﻿namespace RunnerApp.Infrastructure.Files.DTOs;
 
 public readonly struct UploadFileServiceOutput
 {

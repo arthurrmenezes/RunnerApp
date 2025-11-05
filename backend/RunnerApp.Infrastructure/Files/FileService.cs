@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using RunnerApp.Infrastructure.Files.Interfaces;
-using RunnerApp.Infrastructure.Files.Outputs;
+using RunnerApp.Infrastructure.Files.DTOs;
 
 namespace RunnerApp.Infrastructure.Files;
 
@@ -50,7 +50,7 @@ public class FileService : IFileService
             fileSize: file.Length);
     }
 
-    public void DeleteFile(string filePath, CancellationToken cancellationToken)
+    public void DeleteFile(string filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
             throw new InvalidOperationException("Error. Invalid file path.");

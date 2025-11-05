@@ -6,7 +6,6 @@ using RunnerApp.Domain.ValueObjects;
 using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
 using RunnerApp.Infrastructure.Data.UnitOfWork.Interfaces;
 using RunnerApp.Infrastructure.Files.Interfaces;
-using RunnerApp.Infrastructure.Files.Outputs;
 
 namespace RunnerApp.Application.Services.AccountContext;
 
@@ -70,7 +69,7 @@ public class AccountService : IAccountService
         return output;
     }
     
-    public async Task<UploadFileServiceOutput> UploadProfilePictureServiceAsync(
+    public async Task<UploadProfilePictureServiceOutput> UploadProfilePictureServiceAsync(
         IdValueObject accountId, 
         IFormFile pictureFile, 
         CancellationToken cancellationToken)
@@ -80,14 +79,17 @@ public class AccountService : IAccountService
             throw new KeyNotFoundException($"Account with ID {accountId} was not found.");
 
         if (!string.IsNullOrEmpty(account.ProfilePictureUrl))
-            _fileService.DeleteFile(account.ProfilePictureUrl, cancellationToken);
+            _fileService.DeleteFile(account.ProfilePictureUrl);
 
-        var newProfilePictureUrl = await _fileService.UploadFileServiceAsync(pictureFile, cancellationToken);
+        var response = await _fileService.UploadFileServiceAsync(pictureFile, cancellationToken);
 
-        account.SetProfilePicture(newProfilePictureUrl.FileUrl);
+        account.SetProfilePicture(response.FileUrl);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return newProfilePictureUrl;
+        return UploadProfilePictureServiceOutput.Factory(
+            fileName: response.FileName,
+            fileUrl: response.FileUrl,
+            fileSize: response.FileSize);
     }
 }

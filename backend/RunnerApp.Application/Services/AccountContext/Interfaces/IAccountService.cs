@@ -2,7 +2,6 @@
 using RunnerApp.Application.Services.AccountContext.Inputs;
 using RunnerApp.Application.Services.AccountContext.Outputs;
 using RunnerApp.Domain.ValueObjects;
-using RunnerApp.Infrastructure.Files.Outputs;
 
 namespace RunnerApp.Application.Services.AccountContext.Interfaces;
 
@@ -17,7 +16,7 @@ public interface IAccountService
         UpdateAccountServiceInput input,
         CancellationToken cancellationToken);
 
-    public Task<UploadFileServiceOutput> UploadProfilePictureServiceAsync(
+    public Task<UploadProfilePictureServiceOutput> UploadProfilePictureServiceAsync(
         IdValueObject accountId,
         IFormFile pictureFile,
         CancellationToken cancellationToken);
