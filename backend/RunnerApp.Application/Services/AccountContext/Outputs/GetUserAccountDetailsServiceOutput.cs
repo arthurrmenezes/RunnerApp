@@ -6,17 +6,19 @@ public readonly struct GetUserAccountDetailsServiceOutput
     public string FirstName { get; }
     public string Surname { get; }
     public string Email { get; }
+    public string? ProfilePictureUrl { get; }
     public DateTime CreatedAt { get; }
 
-    private GetUserAccountDetailsServiceOutput(string id, string firstName, string surname, string email, DateTime createdAt)
+    private GetUserAccountDetailsServiceOutput(string id, string firstName, string surname, string email, string? profilePictureUrl, DateTime createdAt)
     {
         Id = id;
         FirstName = firstName;
         Surname = surname;
         Email = email;
+        ProfilePictureUrl = profilePictureUrl;
         CreatedAt = createdAt;
     }
 
-    public static GetUserAccountDetailsServiceOutput Factory(string id, string firstName, string surname, string email, DateTime createdAt)
-        => new GetUserAccountDetailsServiceOutput(id, firstName, surname, email, createdAt);
+    public static GetUserAccountDetailsServiceOutput Factory(string id, string firstName, string surname, string email, string? profilePictureUrl, DateTime createdAt)
+        => new GetUserAccountDetailsServiceOutput(id, firstName, surname, email, profilePictureUrl, createdAt);
 }

@@ -36,6 +36,7 @@ public class AccountService : IAccountService
             firstName: account.FirstName,
             surname: account.Surname,
             email: account.Email,
+            profilePictureUrl: account.ProfilePictureUrl,
             createdAt: account.CreatedAt);
 
         return output;
@@ -54,7 +55,7 @@ public class AccountService : IAccountService
             firstName: input.FirstName,
             surname: input.Surname,
             email: input.Email,
-            profilePictureUrl: null);
+            profilePictureUrl: input.ProfilePictureUrl);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -63,6 +64,7 @@ public class AccountService : IAccountService
             firstName: account.FirstName,
             surname: account.Surname,
             email: account.Email,
+            profilePictureUrl: account.ProfilePictureUrl,
             createdAt: account.CreatedAt);
 
         return output;

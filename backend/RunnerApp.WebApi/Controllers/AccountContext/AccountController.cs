@@ -69,7 +69,8 @@ public class AccountController : ControllerBase
             input: UpdateAccountServiceInput.Factory(
                 firstName: input.FirstName,
                 surname: input.Surname,
-                email: input.Email),
+                email: input.Email,
+                profilePictureUrl: input.ProfilePictureUrl),
             cancellationToken: cancellationToken);
 
         return Ok(account);
