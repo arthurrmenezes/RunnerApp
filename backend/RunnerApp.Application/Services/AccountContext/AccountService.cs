@@ -1,9 +1,12 @@
-﻿using RunnerApp.Application.Services.AccountContext.Inputs;
+﻿using Microsoft.AspNetCore.Http;
+using RunnerApp.Application.Services.AccountContext.Inputs;
 using RunnerApp.Application.Services.AccountContext.Interfaces;
 using RunnerApp.Application.Services.AccountContext.Outputs;
 using RunnerApp.Domain.ValueObjects;
 using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
 using RunnerApp.Infrastructure.Data.UnitOfWork.Interfaces;
+using RunnerApp.Infrastructure.Files.Interfaces;
+using RunnerApp.Infrastructure.Files.Outputs;
 
 namespace RunnerApp.Application.Services.AccountContext;
 
@@ -11,11 +14,13 @@ public class AccountService : IAccountService
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IFileService _fileService;
 
-    public AccountService(IAccountRepository accountRepository, IUnitOfWork unitOfWork)
+    public AccountService(IAccountRepository accountRepository, IUnitOfWork unitOfWork, IFileService fileService)
     {
         _accountRepository = accountRepository;
         _unitOfWork = unitOfWork;
+        _fileService = fileService;
     }
 
     public async Task<GetUserAccountDetailsServiceOutput> GetUserAccountDetailsServiceAsync(
@@ -48,7 +53,8 @@ public class AccountService : IAccountService
         account.UpdateAccountDetails(
             firstName: input.FirstName,
             surname: input.Surname,
-            email: input.Email);
+            email: input.Email,
+            profilePictureUrl: null);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -60,5 +66,26 @@ public class AccountService : IAccountService
             createdAt: account.CreatedAt);
 
         return output;
+    }
+    
+    public async Task<UploadFileServiceOutput> UploadProfilePictureServiceAsync(
+        IdValueObject accountId, 
+        IFormFile pictureFile, 
+        CancellationToken cancellationToken)
+    {
+        var account = await _accountRepository.GetAccountByIdAsync(accountId, cancellationToken);
+        if (account is null)
+            throw new KeyNotFoundException($"Account with ID {accountId} was not found.");
+
+        if (!string.IsNullOrEmpty(account.ProfilePictureUrl))
+            _fileService.DeleteFile(account.ProfilePictureUrl, cancellationToken);
+
+        var newProfilePictureUrl = await _fileService.UploadFileServiceAsync(pictureFile, cancellationToken);
+
+        account.SetProfilePicture(newProfilePictureUrl.FileUrl);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return newProfilePictureUrl;
     }
 }

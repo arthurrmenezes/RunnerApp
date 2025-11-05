@@ -49,6 +49,9 @@ public sealed record AccountMapping : IEntityTypeConfiguration<Account>
                 email => email.ToString(),
                 value => EmailValueObject.Factory(value));
 
+        builder.Property(p => p.ProfilePictureUrl)
+            .HasColumnName("profile_picture_url");
+
         builder.Property(p => p.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired();

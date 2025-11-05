@@ -74,4 +74,30 @@ public class AccountController : ControllerBase
 
         return Ok(account);
     }
+
+    [HttpPost]
+    [Route("me/profile-picture")]
+    [Authorize]
+    public async Task<IActionResult> UploadProfilePictureAsync(
+        [FromForm] UploadProfilePicturePayload input,
+        CancellationToken cancellationToken)
+    {
+        if (input.File is null)
+            throw new ArgumentNullException("Error. File is null");
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            throw new ArgumentNullException("Invalid token: user identifier is missing.");
+
+        var applicationUser = await _userManager.FindByIdAsync(userId);
+        if (applicationUser is null)
+            throw new ArgumentNullException("User not found.");
+
+        var response = await _accountService.UploadProfilePictureServiceAsync(
+            accountId: IdValueObject.Factory(applicationUser.AccountId),
+            pictureFile: input.File,
+            cancellationToken: cancellationToken);
+
+        return Ok(response);
+    }
 }

@@ -10,6 +10,8 @@ using RunnerApp.Infrastructure.Data.Repositories;
 using RunnerApp.Infrastructure.Data.Repositories.Interfaces;
 using RunnerApp.Infrastructure.Data.UnitOfWork;
 using RunnerApp.Infrastructure.Data.UnitOfWork.Interfaces;
+using RunnerApp.Infrastructure.Files;
+using RunnerApp.Infrastructure.Files.Interfaces;
 using RunnerApp.Infrastructure.Identity.Entities;
 using RunnerApp.Infrastructure.Identity.Services;
 
@@ -73,6 +75,12 @@ public static class DependencyInjection
         serviceCollection.AddAuthorization();
 
         serviceCollection.AddScoped<TokenService>();
+
+        #endregion
+
+        #region File Configuration
+
+        serviceCollection.AddScoped<IFileService, FileService>();
 
         #endregion
 

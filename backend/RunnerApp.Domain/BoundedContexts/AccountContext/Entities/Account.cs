@@ -9,6 +9,7 @@ public class Account
     public FirstNameValueObject FirstName { get; private set; }
     public SurnameValueObject Surname { get; private set; }
     public EmailValueObject Email { get; private set; }
+    public string? ProfilePictureUrl { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     public virtual ICollection<Training> Trainings { get; private set; }
@@ -18,7 +19,7 @@ public class Account
         Trainings = new List<Training>();
     }
 
-    private Account(FirstNameValueObject firstName, SurnameValueObject surname, EmailValueObject email)
+    private Account(FirstNameValueObject firstName, SurnameValueObject surname, EmailValueObject email, string? profilePictureUrl)
     {
         Id = IdValueObject.New();
         FirstName = FirstNameValueObject.Factory(firstName);
@@ -26,12 +27,13 @@ public class Account
         Email = EmailValueObject.Factory(email);
         CreatedAt = DateTime.UtcNow;
         Trainings = new List<Training>();
+        ProfilePictureUrl = profilePictureUrl;
     }
 
-    public static Account Factory(FirstNameValueObject firstName, SurnameValueObject surname, EmailValueObject email)
-        => new Account(firstName, surname, email);
+    public static Account Factory(FirstNameValueObject firstName, SurnameValueObject surname, EmailValueObject email, string? profilePictureUrl)
+        => new Account(firstName, surname, email, profilePictureUrl);
 
-    public void UpdateAccountDetails(string? firstName, string? surname, string? email)
+    public void UpdateAccountDetails(string? firstName, string? surname, string? email, string? profilePictureUrl)
     {
         if (!string.IsNullOrEmpty(firstName))
             FirstName = FirstNameValueObject.Factory(firstName);
@@ -41,5 +43,21 @@ public class Account
 
         if (!string.IsNullOrEmpty(email))
             Email = EmailValueObject.Factory(email);
+
+        if (!string.IsNullOrEmpty(profilePictureUrl))
+            ProfilePictureUrl = profilePictureUrl;
+    }
+
+    public void SetProfilePicture(string profilePictureUrl)
+    {
+        if (string.IsNullOrEmpty(profilePictureUrl))
+            throw new ArgumentException("Profile picture URL cannot be null or empty.", nameof(profilePictureUrl));
+
+        ProfilePictureUrl = profilePictureUrl;
+    }
+
+    public void RemoveProfilePicture()
+    {
+        ProfilePictureUrl = null;
     }
 }
