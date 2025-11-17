@@ -19,3 +19,5 @@ project.nuget.cache
 # Outros caches
 /filecontentindex
 /v17
+
+backend\RunnerApp.WebApi\wwwroot\uploads

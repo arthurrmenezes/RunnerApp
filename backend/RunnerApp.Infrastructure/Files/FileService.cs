@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using RunnerApp.Infrastructure.Files.Interfaces;
 using RunnerApp.Infrastructure.Files.DTOs;
+using RunnerApp.Infrastructure.Files.Interfaces;
 
 namespace RunnerApp.Infrastructure.Files;
 
@@ -59,5 +59,20 @@ public class FileService : IFileService
 
         if (File.Exists(path))
             File.Delete(path);
+    }
+
+    public async Task<byte[]> GetFileByPathAsync(string filePath, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+            throw new ArgumentException("Invalid file path.");
+
+        var relativePath = filePath.TrimStart('/').Replace("/", "\\");
+
+        var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath);
+        if (!File.Exists(fullPath))
+            throw new FileNotFoundException($"File not found at {fullPath}.");
+
+        var response = await File.ReadAllBytesAsync(fullPath, cancellationToken);
+        return response;
     }
 }

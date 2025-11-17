@@ -92,4 +92,35 @@ public class AccountService : IAccountService
             fileUrl: response.FileUrl,
             fileSize: response.FileSize);
     }
+
+    public async Task<GetProfilePictureByAccountIdServiceOutput> GetProfilePictureByAccountIdServiceAsync(
+        IdValueObject accountId, 
+        CancellationToken cancellationToken)
+    {
+        var account = await _accountRepository.GetAccountByIdAsync(accountId, cancellationToken);
+        if (account is null)
+            throw new KeyNotFoundException($"Account with ID {accountId} not found.");
+
+        if (account.ProfilePictureUrl is null)
+            throw new KeyNotFoundException($"Account with ID {accountId} does not have a profile picture.");
+
+        var file = await _fileService.GetFileByPathAsync(account.ProfilePictureUrl, cancellationToken);
+        if (file is null)
+            throw new FileNotFoundException($"File was not found.");
+
+        var fileType = Path.GetExtension(account.ProfilePictureUrl);
+
+        var fileTypeOutput = fileType switch
+        {
+            ".jpg" => "image/jpeg",
+            ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            _ => "application/octet-stream"
+        };
+        var output = GetProfilePictureByAccountIdServiceOutput.Factory(
+            profilePicture: file,
+            fileType: fileTypeOutput);
+
+        return output;
+    }
 }

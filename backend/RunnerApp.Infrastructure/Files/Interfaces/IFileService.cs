@@ -10,4 +10,6 @@ public interface IFileService
         CancellationToken cancellationToken);
 
     public void DeleteFile(string filePath);
+
+    public Task<byte[]> GetFileByPathAsync(string filePath, CancellationToken cancellationToken);
 }

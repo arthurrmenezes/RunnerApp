@@ -48,6 +48,7 @@ public class ExceptionMiddleware
         {
             ArgumentNullException => StatusCodes.Status400BadRequest,
             ArgumentException => StatusCodes.Status400BadRequest,
+            FileNotFoundException => StatusCodes.Status404NotFound,
             InvalidOperationException => StatusCodes.Status400BadRequest,
             SecurityTokenException => StatusCodes.Status401Unauthorized,
             UnauthorizedAccessException => StatusCodes.Status403Forbidden,

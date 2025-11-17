@@ -20,4 +20,8 @@ public interface IAccountService
         IdValueObject accountId,
         IFormFile pictureFile,
         CancellationToken cancellationToken);
+
+    public Task<GetProfilePictureByAccountIdServiceOutput> GetProfilePictureByAccountIdServiceAsync(
+        IdValueObject accountId,
+        CancellationToken cancellationToken);
 }

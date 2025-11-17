@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -8,6 +7,7 @@ using RunnerApp.Application.Services.AccountContext.Interfaces;
 using RunnerApp.Domain.ValueObjects;
 using RunnerApp.Infrastructure.Identity.Entities;
 using RunnerApp.WebApi.Controllers.AccountContext.Payloads;
+using System.Security.Claims;
 
 namespace RunnerApp.WebApi.Controllers.AccountContext;
 
@@ -100,5 +100,22 @@ public class AccountController : ControllerBase
             cancellationToken: cancellationToken);
 
         return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("{accountId}/photo")]
+    [Authorize]
+    public async Task<IActionResult> GetProfilePictureByAccountIdAsync(
+        [FromRoute] string accountId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(accountId, out var guid))
+            throw new ArgumentException("Invalid account ID format.");
+
+        var response = await _accountService.GetProfilePictureByAccountIdServiceAsync(
+            accountId: guid,
+            cancellationToken: cancellationToken);
+
+        return File(response.ProfilePicture, response.FileType);
     }
 }
